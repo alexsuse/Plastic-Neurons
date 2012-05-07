@@ -12,17 +12,17 @@ from matplotlib import cm
 dt = 0.001
 phi = 1.2
 alpha = 0.1
-zeta = 3.0
-eta = 1.7
+zeta = 4.0
+eta = 1.4
 gamma = 1.0
 timewindow = 20000
 dm = 0.2
 tau = 0.5
-nparticles = 20
+nparticles = 10
 
 #env is the "environment", that is, the true process to which we don't have access
 
-env = ge.GaussianEnv(gamma=gamma,eta=eta,zeta=zeta,x0=0.0,y0=.0,L=1.0,N=1,order=1,sigma=0.1,Lx=1.0,Ly=1.0)
+env = ge.BistableEnv(gamma=gamma,eta=eta,zeta=zeta,x0=0.0,y0=.0,L=1.0,N=1,order=1,sigma=0.1,Lx=1.0,Ly=1.0)
 env.reset(np.array([0.0]))
 
 #code is the population of neurons, plastic poisson neurons
@@ -43,6 +43,7 @@ dyingrates = np.zeros((nparticles,))
 particles[-1,:] = np.random.normal(env.getstate(),eta**2/(2*gamma),particles[-1,:].shape)
 
 for i in range(timewindow):
+	print "%f percent" % float(100.0*i/timewindow)
 	s[i] = env.samplestep(dt).ravel()
 	[sps[i,:],rates[i,:]] = code.spikes(s[i],dt)
 	particles[i,:] = (1-gamma*dt)*particles[i-1,:]+np.sqrt(dt)*np.random.normal(0.0,eta,nparticles)
