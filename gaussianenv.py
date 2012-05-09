@@ -28,7 +28,9 @@ class GaussianEnv(object):
 		self.ys = np.arange(y0,y0+Ly,Ly/N)
 		self.zeta = zeta
 		self.gamma = gamma
+		self.Gamma = self.getGamma()
 		self.eta = eta
+		self.H = self.getH()
 		self.L = L
 		self.N = N
 		self.k = np.zeros((N*N,N*N))
@@ -56,7 +58,13 @@ class GaussianEnv(object):
 		s = np.dot(self.khalf,s)	
 		return np.reshape(s,(self.N,self.N))
 
-	def getgamma(self):
+	def drift(self,x=None):
+		if x!=None:
+			return -np.dot(self.Gamma,x)
+		else:
+			return -np.dot(self.Gamma,self.S)
+
+	def getGamma(self):
 		g = np.zeros((self.order,self.order))
 		for i in range(self.order):
 			g[i-1,i] = -1.0
@@ -64,11 +72,15 @@ class GaussianEnv(object):
 			g[-1,i] = binomial(self.order+1,i)*self.gamma**(self.order+1-i)
 		return g		
 
-	def geteta(self):
+	def getH(self):
 		eta = np.zeros((self.order,self.order))
 		eta[-1,-1]= self.eta**2
 		return eta	
-		
+	
+	def geteta(self):
+		return self.eta	
+	def getgamma(self):
+		return self.gamma
 	def getstate(self):
 		return self.S[:,0]
 
@@ -76,12 +88,7 @@ class GaussianEnv(object):
 		"""Gives a sample of the temporal dependent gp"""
 		sample = np.zeros((N,self.order))
 		for steps in range(N):
-			temp = 0.
-			for j in range(0,self.order):
-				temp = temp+binomial(self.order+1,j)*self.gamma**(self.order+1-j)*self.S[j,:]
-			self.S[-1,:]= self.S[-1,:]-dt*temp+np.sqrt(dt)*self.eta*np.random.normal(0.0,1.0,self.N*self.N)
-			for i in reversed(range(self.order-1)):
-				self.S[i,:] = self.S[i,:] + dt*self.S[i+1,:]
+			self.S = self.S + dt*self.drift()+np.sqrt(dt)*np.dot(self.H,np.random.normal(0.0,(self.order,self.N*self.N)))
 			sample[steps,:] = self.S[:,0]
 		#sample = np.dot(self.khalf,self.S[-1,:])
 		return sample
@@ -129,7 +136,7 @@ class BistableEnv(object):
 			self.S = np.random.normal(0.0,1.0,(self.order,self.N*self.N))
 	
 	def drift(self,x=None):
-		if x:
+		if x!=None:
 			return -2*self.zeta*self.gamma*x**3+2*self.zeta*self.gamma**2*x 
 		else:
 			return -2*self.zeta*self.gamma*(self.S**3)+2*self.zeta*self.gamma**2*self.S
@@ -139,14 +146,18 @@ class BistableEnv(object):
 		s = np.random.normal(0.0,1.0,self.N*self.N)
 		s = np.dot(self.khalf,s)
 		return np.reshape(s,(self.N,self.N))
-		
+	def getgamma(self):
+		return self.gamma
+	def geteta(self):
+		return self.eta	
+	
 	def getstate(self):
 		return self.S[:,0]
 	def samplestep(self,dt,N =1 ):
 		"""Gives a sample of the temporal dependent gp"""
 		sample = np.zeros((N,self.order))
 		for steps in range(N):
-			self.S[:]= self.S[:]+dt*self.drift()+np.sqrt(dt)*self.eta*np.random.normal(0.0,1.0,self.N*self.N)
+			self.S[:]= self.S[:]+dt*self.drift()+np.sqrt(dt)*self.eta*np.random.normal(0.0,1.0,(self.order,self.N*self.N))
 			sample[steps,:] = self.S[:]
 		#sample = np.dot(self.khalf,self.S[-1,:])
 		return sample

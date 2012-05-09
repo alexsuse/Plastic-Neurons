@@ -5,20 +5,21 @@ import gaussianenv as ge
 import poissonneuron as pn
 import numpy as np
 import matplotlib.pyplot as plt
+import particlefilter as pf
 from matplotlib import cm
 
 #parameter definitions
 
 dt = 0.001
 phi = 1.2
-alpha = 0.1
+alpha = 0.5
 zeta = 4.0
 eta = 1.4
 gamma = 1.0
 timewindow = 20000
 dm = 0.2
 tau = 0.5
-nparticles = 10
+nparticles = 20
 
 #env is the "environment", that is, the true process to which we don't have access
 
@@ -27,42 +28,15 @@ env.reset(np.array([0.0]))
 
 #code is the population of neurons, plastic poisson neurons
 
-code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-3.0,3.0,0.1),dm=dm)
+code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-3.0,3.0,0.4),dm=dm)
 
 #s is the stimulus, sps holds the spikes, rates the rates of each neuron and particles give the position of the particles
 #weights gives the weights associated with each particle
 
-s = np.zeros((timewindow,))
-sps = np.zeros((timewindow,code.N))
-rates = np.zeros((timewindow,code.N))
-particles = np.zeros((timewindow,nparticles))
-weights = np.ones((timewindow,nparticles))/nparticles
-essthreshold= 2.0/nparticles
-dyingrates = np.zeros((nparticles,))
+[m,sps,s,st,mse] = pf.particle_filter(code,env)
 
-particles[-1,:] = np.random.normal(env.getstate(),eta**2/(2*gamma),particles[-1,:].shape)
+olda = ""
 
-for i in range(timewindow):
-	print "%f percent" % float(100.0*i/timewindow)
-	s[i] = env.samplestep(dt).ravel()
-	[sps[i,:],rates[i,:]] = code.spikes(s[i],dt)
-	particles[i,:] = (1-gamma*dt)*particles[i-1,:]+np.sqrt(dt)*np.random.normal(0.0,eta,nparticles)
-	weights[i,:] = weights[i-1,:]
-	a = np.where(sps[i,:]==1)[0]
-	if a:
-#		print "spikes"
-		liks = code.neurons[a[0]].likelihood(particles[i,:])
-		weights[i,:] = weights[i-1,:]*liks
-		weights[i,:] = weights[i,:]/np.sum(weights[i,:])
-	else:
-#		print "no spikes"
-		rt = np.array([code.totalrate(j) for j in particles[i,:]])
-		weights[i,:] = weights[i-1,:]*(1.0-rt*dt)
-		weights[i,:] = weights[i,:]/np.sum(weights[i,:])
-	if np.sum(weights[i,:]*weights[i,:])>essthreshold:
-#		print "let's shake it!"
-		particles[i,:] = particles[i,pn.choice(weights[i,:],shape=particles[i,:].shape)]
-		weights[i,:] = 1.0/nparticles	
 plt.close()	
 
 times = np.arange(0.0,dt*timewindow,dt)
@@ -73,9 +47,10 @@ if sum(sum(sps)) !=0:
 	spiketimes = times[ts]
 	thetas = [code.neurons[i].theta for i in neurs]
 
-m = np.average(particles,weights=weights,axis=1)
-
+#m = np.average(particles,weights=weights,axis=1)
+#st = np.std(particles,weights=weights,axis=1)
 #ext = (0.0,dt*timewindow,code.neurons[-1].theta,code.neurons[0].theta)
 #plt.imshow(rates.T,extent=ext,cmap = cm.gist_yarg,aspect = 'auto',interpolation ='nearest')
 plt.plot(spiketimes,thetas,'yo')
 plt.plot(times,m,'b')
+plt.plot(times,m-st,'k',times,m+st,'k')
