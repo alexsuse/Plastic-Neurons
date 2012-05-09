@@ -21,6 +21,9 @@ class PoissonPlasticNeuron(object):
 		self.mu = 1.0
 		self.dm = dm
 		self.tau = tau
+	def getmu(self):
+		return self.mu
+
 	def rate(self,S):
 		"""Gives the rate of the poisson spiking process given the stimulus S"""
 		#S = np.reshape(stim,self.N*self.N)

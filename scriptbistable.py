@@ -33,9 +33,7 @@ code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-3.0,3.0,0
 #s is the stimulus, sps holds the spikes, rates the rates of each neuron and particles give the position of the particles
 #weights gives the weights associated with each particle
 
-[m,sps,s,st,mse] = pf.particle_filter(code,env)
-
-olda = ""
+[m,st,sps,s,mse] = pf.particle_filter(code,env,dt=dt,timewindow=timewindow,nparticles=nparticles)
 
 plt.close()	
 

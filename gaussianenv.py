@@ -24,6 +24,7 @@ class GaussianEnv(object):
 		to the diagonal of the gram matrix to ensure positive definiteness
 		and order is the order of the matern process
 		k is the covariance matrix, and khalf its cholesky decomposition, used to sample"""
+		self.order = order if order>0 else 1
 		self.xs = np.arange(x0,x0+Lx,Lx/N)
 		self.ys = np.arange(y0,y0+Ly,Ly/N)
 		self.zeta = zeta
@@ -35,7 +36,6 @@ class GaussianEnv(object):
 		self.N = N
 		self.k = np.zeros((N*N,N*N))
 		self.S = np.random.normal(0.0,1.0,(order,N*N))
-		self.order = order if order>0 else 1
 		if N>1:
 			for i in range(0,N*N):
 				for j in range(0,N*N):
@@ -60,9 +60,12 @@ class GaussianEnv(object):
 
 	def drift(self,x=None):
 		if x!=None:
-			return -np.dot(self.Gamma,x)
+			return -np.dot(self.Gamma,np.array([x]))
 		else:
 			return -np.dot(self.Gamma,self.S)
+
+	def vardrift(self,sig):
+		return -np.dot(self.Gamma,sig)-np.dot(sig,self.Gamma.T)+self.H**2
 
 	def getGamma(self):
 		g = np.zeros((self.order,self.order))
@@ -74,7 +77,7 @@ class GaussianEnv(object):
 
 	def getH(self):
 		eta = np.zeros((self.order,self.order))
-		eta[-1,-1]= self.eta**2
+		eta[-1,-1]= self.eta
 		return eta	
 	
 	def geteta(self):
@@ -88,7 +91,7 @@ class GaussianEnv(object):
 		"""Gives a sample of the temporal dependent gp"""
 		sample = np.zeros((N,self.order))
 		for steps in range(N):
-			self.S = self.S + dt*self.drift()+np.sqrt(dt)*np.dot(self.H,np.random.normal(0.0,(self.order,self.N*self.N)))
+			self.S = self.S + dt*self.drift()+np.sqrt(dt)*np.dot(self.H,np.random.normal(0.0,1.0,(self.order,self.N*self.N)))
 			sample[steps,:] = self.S[:,0]
 		#sample = np.dot(self.khalf,self.S[-1,:])
 		return sample
