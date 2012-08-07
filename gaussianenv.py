@@ -16,7 +16,7 @@ class GaussianEnv(object):
 	we take the points x to be regularly distributed on a grid on the square
 	(x0,y0),(x0,y0+Ly),(x0+Lx,y0+Ly),(x0+Lx,y0) and phi is the matern kernel
 	with \nu = order-1/2."""
-	def __init__(self,zeta,gamma,eta,L,N,x0,y0,Lx,Ly,sigma,order):
+	def __init__(self,zeta,gamma,eta,L,N,x0,y0,Lx,Ly,sigma,order,randomstate=None):
 		"""Constructer method, generates all the internal data
 		xs and ys are the x and y coordinates of all the points.
 		zeta, eta, gamma, L are the parameters of the kernel
@@ -36,6 +36,10 @@ class GaussianEnv(object):
 		self.N = N
 		self.k = np.zeros((N*N,N*N))
 		self.S = np.random.normal(0.0,1.0,(order,N*N))
+		if randomstate==None:
+			self.rng = np.random
+		else:
+			self.rng = randomstate
 		if N>1:
 			for i in range(0,N*N):
 				for j in range(0,N*N):
@@ -50,11 +54,11 @@ class GaussianEnv(object):
 		if x:
 			self.S = x
 		else:
-			self.S = np.random.normal(0.0,1.0,(self.order,self.N*self.N))
+			self.S = self.rng.normal(0.0,1.0,(self.order,self.N*self.N))
 
 	def sample(self):
 		"""Gets an independent sample from the spatial kernel"""
-		s = np.random.normal(0.0,1.0,self.N*self.N)
+		s = self.rng.normal(0.0,1.0,self.N*self.N)
 		s = np.dot(self.khalf,s)	
 		return np.reshape(s,(self.N,self.N))
 
@@ -72,7 +76,7 @@ class GaussianEnv(object):
 		for i in range(self.order):
 			g[i-1,i] = -1.0
 		for i in range(self.order):
-			g[-1,i] = binomial(self.order+1,i)*self.gamma**(self.order+1-i)
+			g[-1,i] = binomial(self.order,i)*self.gamma**(self.order-i)
 		return g		
 
 	def getH(self):
@@ -91,7 +95,7 @@ class GaussianEnv(object):
 		"""Gives a sample of the temporal dependent gp"""
 		sample = np.zeros((N,self.order))
 		for steps in range(N):
-			self.S = self.S + dt*self.drift()+np.sqrt(dt)*np.dot(self.H,np.random.normal(0.0,1.0,(self.order,self.N*self.N)))
+			self.S = self.S + dt*self.drift()+np.sqrt(dt)*np.dot(self.H,self.rng.normal(0.0,1.0,(self.order,self.N*self.N)))
 			sample[steps,:] = self.S[:,0]
 		#sample = np.dot(self.khalf,self.S[-1,:])
 		return sample
@@ -104,7 +108,7 @@ class BistableEnv(object):
 	we take the points x to be regularly distributed on a grid on the square
 	(x0,y0),(x0,y0+Ly),(x0+Lx,y0+Ly),(x0+Lx,y0) and phi is the matern kernel
 	with \nu = order-1/2."""
-	def __init__(self,zeta,gamma,eta,L,N,x0,y0,Lx,Ly,sigma,order):
+	def __init__(self,zeta,gamma,eta,L,N,x0,y0,Lx,Ly,sigma,order,randomstate=None):
 		"""Constructer method, generates all the internal data
 		xs and ys are the x and y coordinates of all the points.
 		zeta, eta, gamma, L are the parameters of the kernel
@@ -122,6 +126,10 @@ class BistableEnv(object):
 		self.k = np.zeros((N*N,N*N))
 		self.S = np.random.normal(0.0,1.0,(order,N*N))
 		self.order = order if order>0 else 1
+		if randomstate==None:
+			self.rng = np.random
+		else:
+			self.rng=randomstate
 		if N>1:
 			for i in range(0,N*N):
 				for j in range(0,N*N):
@@ -136,7 +144,7 @@ class BistableEnv(object):
 		if x:
 			self.S = x
 		else:
-			self.S = np.random.normal(0.0,1.0,(self.order,self.N*self.N))
+			self.S = self.rng.normal(0.0,1.0,(self.order,self.N*self.N))
 	
 	def drift(self,x=None):
 		if x!=None:
@@ -146,7 +154,7 @@ class BistableEnv(object):
 
 	def sample(self):
 		"""Gets an independent sample from the spatial kernel"""
-		s = np.random.normal(0.0,1.0,self.N*self.N)
+		s = self.rng.normal(0.0,1.0,self.N*self.N)
 		s = np.dot(self.khalf,s)
 		return np.reshape(s,(self.N,self.N))
 	def getgamma(self):
@@ -160,7 +168,7 @@ class BistableEnv(object):
 		"""Gives a sample of the temporal dependent gp"""
 		sample = np.zeros((N,self.order))
 		for steps in range(N):
-			self.S[:]= self.S[:]+dt*self.drift()+np.sqrt(dt)*self.eta*np.random.normal(0.0,1.0,(self.order,self.N*self.N))
+			self.S[:]= self.S[:]+dt*self.drift()+np.sqrt(dt)*self.eta*self.rng.normal(0.0,1.0,(self.order,self.N*self.N))
 			sample[steps,:] = self.S[:]
 		#sample = np.dot(self.khalf,self.S[-1,:])
 		return sample

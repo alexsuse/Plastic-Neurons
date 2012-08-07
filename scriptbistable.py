@@ -11,15 +11,15 @@ from matplotlib import cm
 #parameter definitions
 
 dt = 0.001
-phi = 1.2
-alpha = 0.5
+phi = 1.0
+alpha = 0.2
 zeta = 4.0
 eta = 1.4
 gamma = 1.0
 timewindow = 20000
 dm = 0.2
 tau = 0.5
-nparticles = 20
+nparticles = 200
 
 #env is the "environment", that is, the true process to which we don't have access
 
@@ -28,12 +28,11 @@ env.reset(np.array([0.0]))
 
 #code is the population of neurons, plastic poisson neurons
 
-code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-3.0,3.0,0.4),dm=dm)
+code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-3.0,3.0,0.1),dm=dm,alpha=alpha)
 
 #s is the stimulus, sps holds the spikes, rates the rates of each neuron and particles give the position of the particles
 #weights gives the weights associated with each particle
-
-[m,st,sps,s,mse] = pf.particle_filter(code,env,dt=dt,timewindow=timewindow,nparticles=nparticles)
+[m,st,sps,s,mse,particles,weights] = pf.particle_filter(code,env,dt=dt,timewindow=timewindow,nparticles=nparticles)
 
 plt.close()	
 
@@ -52,3 +51,4 @@ if sum(sum(sps)) !=0:
 plt.plot(spiketimes,thetas,'yo')
 plt.plot(times,m,'b')
 plt.plot(times,m-st,'k',times,m+st,'k')
+plt.savefig('filtering_bistable.png',dpi=200)
