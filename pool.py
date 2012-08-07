@@ -4,7 +4,7 @@ import poissonneuron as pn
 import numpy as np
 import multiprocessing as mp
 from multiprocessing import Pool
-
+import cPickle as pic
 
 dt = 0.001
 phi = 1.2
@@ -12,10 +12,10 @@ alpha = 0.2
 zeta = 1.0
 eta = 1.8
 gamma = 1.2
-timewindow = 1000
+timewindow = 100
 dm = 0.2
 tau = 0.5
-nparticles = 50
+nparticles = 20
 	
 def runPF(alpha):
 	
@@ -42,10 +42,14 @@ def runPF(alpha):
 	return (alpha,results)
 
 if __name__=='__main__':
-	inp = np.arange(0.001,4.0,1.0)
+	inp = np.arange(0.001,4.0,0.05)
 	
 	ncpus = mp.cpu_count()
 	pool = Pool(processes= ncpus)
 	outp = pool.map(runPF,inp)
+	outpickle = {}
 	for o in outp:
-		print o
+		[alpha,rest] = o
+		outpickle[alpha] = rest
+	fi= open('pickledump','w')
+	pic.dump(outpickle,fi)
