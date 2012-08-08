@@ -12,10 +12,10 @@ alpha = 0.2
 zeta = 1.0
 eta = 1.8
 gamma = 1.2
-timewindow = 100
+timewindow = 100000
 dm = 0.2
 tau = 0.5
-nparticles = 20
+nparticles = 200
 	
 def runPF(alpha):
 	
