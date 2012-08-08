@@ -12,7 +12,7 @@ alpha = 0.2
 zeta = 1.0
 eta = 1.8
 gamma = 1.2
-timewindow = 100000
+timewindow = 50000
 dm = 0.2
 tau = 0.5
 nparticles = 200
@@ -39,7 +39,7 @@ def runPF(alpha):
 	
 	results = pf.particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'Silent')
 	
-	return (alpha,results)
+	return (alpha,results[4])
 
 if __name__=='__main__':
 	inp = np.arange(0.001,4.0,0.05)
@@ -51,5 +51,5 @@ if __name__=='__main__':
 	for o in outp:
 		[alpha,rest] = o
 		outpickle[alpha] = rest
-	fi= open('pickledump','w')
+	fi= open('pickle_alphas','w')
 	pic.dump(outpickle,fi)
