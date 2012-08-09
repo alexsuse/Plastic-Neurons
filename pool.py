@@ -5,6 +5,7 @@ import numpy as np
 import multiprocessing as mp
 from multiprocessing import Pool
 import cPickle as pic
+import os
 
 dt = 0.001
 phi = 1.2
@@ -26,7 +27,7 @@ def runPF(alpha):
 	
 	#code is the population of neurons, plastic poisson neurons	
 	code_rng = np.random.mtrand.RandomState()
-	code = pn.PoissonPlasticCode(A=alpha,phi=phi/2,tau=tau,thetas=np.arange(-20.0,20.0,0.15),dm=dm,randomstate=code_rng,alpha=alpha)
+	code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-20.0,20.0,0.15),dm=dm,randomstate=code_rng,alpha=alpha)
 	
 	#s is the stimulus, sps holds the spikes, rates the rates of each neuron and particles give the position of the particles
 	#weights gives the weights associated with each particle
@@ -53,3 +54,4 @@ if __name__=='__main__':
 		outpickle[alpha] = rest
 	fi= open('pickle_alphas','w')
 	pic.dump(outpickle,fi)
+	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")
