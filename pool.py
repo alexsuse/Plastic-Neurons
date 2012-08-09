@@ -6,6 +6,7 @@ import multiprocessing as mp
 from multiprocessing import Pool
 import cPickle as pic
 import os
+import sys
 
 dt = 0.001
 phi = 1.2
@@ -13,12 +14,11 @@ alpha = 0.2
 zeta = 1.0
 eta = 1.8
 gamma = 1.2
-timewindow = 50000
+timewindow = 200
 dm = 0.2
-tau = 0.5
-nparticles = 200
+nparticles = 20
 	
-def runPF(alpha):
+def runPF(alpha,tau):
 	
 	env_rng = np.random.mtrand.RandomState()
 	
@@ -43,15 +43,20 @@ def runPF(alpha):
 	return (alpha,results[4])
 
 if __name__=='__main__':
-	inp = np.arange(0.001,4.0,0.05)
-	
+	alpha = np.arange(0.001,4.0,0.05)
+	taus = np.arange(0.001,10.0,0.5)
 	ncpus = mp.cpu_count()
 	pool = Pool(processes= ncpus)
-	outp = pool.map(runPF,inp)
+	params = [(a,t) for a in alpha for t in taus]
+	outp = pool.map(runPF,params)
 	outpickle = {}
 	for o in outp:
 		[alpha,rest] = o
 		outpickle[alpha] = rest
-	fi= open('pickle_alphas','w')
+	if len(sys.argn)>1:
+		filename = sys.argv[1]
+	else:
+		filename = "pickle_alphas_1"
+	fi= open(filename,'w')
 	pic.dump(outpickle,fi)
 	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")
