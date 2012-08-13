@@ -1,0 +1,5 @@
+#ignore auxiliary .pyc files
+*.pyc
+#ignore generated images, png or eps
+*.eps
+*.png

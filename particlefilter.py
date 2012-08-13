@@ -75,13 +75,17 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
 	olda = ""
 	i=-1
 	for stim in s:
+		i+=1
 		if mode!='Silent':
 			percent = "%2.1f percent "% float(100.0*i/timewindow)
 			if percent!=olda:
 				olda=percent
 				print "particle filter:"+percent
+				print "particles"
+				print particles[i-1,:10]
+				print "weights"
+				print weights[i-1,:10]
 		#[sps[i,:],rates[i,:]] = code.spikes(s[i],dt)
-		i+=1
 		[temp1,temp2] = code.spikes(stim,dt,grates=grates[i,:])
 		sps[i,:] = temp1
 		rates[i,:] = temp2.ravel()
