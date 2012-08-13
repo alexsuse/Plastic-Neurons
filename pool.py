@@ -13,7 +13,7 @@ phi = 1.2
 zeta = 1.0
 eta = 1.8
 gamma = 1.2
-timewindow = 200000
+timewindow = 50000
 dm = 0.2
 nparticles = 200
 	
@@ -57,5 +57,5 @@ if __name__=='__main__':
 	else:
 		filename = "pickle_alphas_1"
 	fi= open(filename,'w')
-	pic.dump(outpickle,fi)
+	pic.dump([outpickle,alphas,taus],fi)
 	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")

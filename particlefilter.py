@@ -96,9 +96,18 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
 			weights[i,:] = weights[i-1,:]*liks
 			if np.sum(weights[i,:]==0.0):
 				print "DANGER, DANGER"
+				print "spikes"
+				print a
+				print "particles"
+				print particles[i,:]
+				print "likelihoods"
 				print liks
+				print "weights"
 				print weights
+				print "mu"
+				print code.neurons[a[0]].mu
 				weights[i,:] = 1.0/nparticles
+				return [0,0,0,0,0,0,0]
 			weights[i,:] = weights[i,:]/np.sum(weights[i,:])
 		else:
 			exponent = np.tile(particles[i,:],(code.N,1))-np.tile(thets,(nparticles,1)).T
