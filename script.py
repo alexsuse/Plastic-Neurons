@@ -17,7 +17,7 @@ alpha = 0.2
 zeta = 1.0
 eta = 1.8
 gamma = 1.2
-timewindow = 20000
+timewindow = 2000
 dm = 0.2
 tau = 15.0
 nparticles = 200
@@ -54,7 +54,7 @@ code_rng.seed(67890)
 env.reset(np.array([0.0]))
 code.reset()
 
-[mp,varp,spsp,sp,msep,parts,ws] = pf.particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'v')
+[mp,varp,spsp,sp,msep,parts,ws] = pf.particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'v',testf = (lambda x:1.0/(1.0+np.exp(-x))))
 
 if gaussian:
 	print "MSE of gaussian filter %f"% mseg
