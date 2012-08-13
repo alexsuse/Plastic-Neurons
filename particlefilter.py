@@ -94,6 +94,9 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
 		if a:
 			liks = code.neurons[a[0]].likelihood(particles[i,:])
 			weights[i,:] = weights[i-1,:]*liks
+		    if np.sum(weights[i,:]==0.0):
+		    	print "DANGER, DANGER"
+		    	weights[i,:] = 1.0/nparticles
 			weights[i,:] = weights[i,:]/np.sum(weights[i,:])
 		else:
 			exponent = np.tile(particles[i,:],(code.N,1))-np.tile(thets,(nparticles,1)).T
@@ -106,9 +109,6 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
 		if np.sum(weights[i,:]**2)>essthreshold:
 			particles[i,:] = particles[i,choice(weights[i,:],shape=particles[i,:].shape,randomstate=randomstate)]
 			weights[i,:] = 1.0/nparticles	
-		if np.sum(weights[i,:]==0.0):
-			print "DANGER, DANGER"
-			weights[i,:] = 1.0/nparticles
 	
 	(m,st) = weighted_avg_and_std(particles,weights,nparticles,axis=1)
 	mse = np.average((m-s)**2)

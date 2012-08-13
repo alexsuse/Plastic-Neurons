@@ -10,7 +10,6 @@ import sys
 
 dt = 0.001
 phi = 1.2
-alpha = 0.2
 zeta = 1.0
 eta = 1.8
 gamma = 1.2
@@ -40,14 +39,14 @@ def runPF(params):
 	
 	results = pf.particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'Silent')
 	
-	return (alpha,tau,results[4])
+	return [alpha,tau,results[4]]
 
 if __name__=='__main__':
 	alpha = np.arange(0.001,4.0,0.05)
 	taus = np.arange(0.001,10.0,0.5)
 	ncpus = mp.cpu_count()
 	pool = Pool(processes= ncpus)
-	params = [(a,t) for a in alpha for t in taus]
+	params = [[a,t] for a in alpha for t in taus]
 	outp = pool.map(runPF,params)
 	outpickle = {}
 	for o in outp:
