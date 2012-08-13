@@ -56,7 +56,8 @@ code.reset()
 
 [mp,varp,spsp,sp,msep,parts,ws] = pf.particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'v')
 
-print "MSE of gaussian filter %f"% mseg
+if gaussian:
+	print "MSE of gaussian filter %f"% mseg
 print "MSE of particle filter %f"% msep
 
 if plotting:
