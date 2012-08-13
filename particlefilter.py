@@ -58,7 +58,7 @@ def gaussian_filter(code,env,timewindow=20000,dt=0.001,mode='Silent'):
 	return [m,sigma,sps,s,mse]	
 
 
-def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silent',randomstate=np.random):
+def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silent',randomstate=np.random,testf = (lambda x: x)):
 	s = np.zeros((timewindow,))
 	s = env.samplestep(dt,N=timewindow).ravel()
 	sps = np.zeros((timewindow,code.N))
@@ -96,18 +96,9 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
 			weights[i,:] = weights[i-1,:]*liks
 			if np.sum(weights[i,:]==0.0):
 				print "DANGER, DANGER"
-				print "spikes"
-				print a
-				print "particles"
-				print particles[i,:]
-				print "likelihoods"
 				print liks
-				print "weights"
 				print weights
-				print "mu"
-				print code.neurons[a[0]].mu
 				weights[i,:] = 1.0/nparticles
-				return [0,0,0,0,0,0,0]
 			weights[i,:] = weights[i,:]/np.sum(weights[i,:])
 		else:
 			exponent = np.tile(particles[i,:],(code.N,1))-np.tile(thets,(nparticles,1)).T
@@ -121,12 +112,12 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
 			particles[i,:] = particles[i,choice(weights[i,:],shape=particles[i,:].shape,randomstate=randomstate)]
 			weights[i,:] = 1.0/nparticles	
 	
-	(m,st) = weighted_avg_and_std(particles,weights,nparticles,axis=1)
-	mse = np.average((m-s)**2)
+	(m,st) = weighted_avg_and_std(particles,weights,nparticles,axis=1,testf=testf)
+	mse = np.average((m-map(testf,s))**2)
 	return [m,st,sps,s,mse,particles,weights]
 
 
-def weighted_avg_and_std(values, ws,nparticles,axis=None):
-	average = np.repeat(np.array([np.average(values,weights=ws,axis=1)]).T,nparticles,axis=1)
-	variance = np.sum(ws*(values-average)**2,axis=1)  # Fast and numerically precise
+def weighted_avg_and_std(values, ws,nparticles,axis=None,testf = (lambda x: x)):
+	average = np.repeat(np.array([np.average(map(testf,values),weights=ws,axis=1)]).T,nparticles,axis=1)
+	variance = np.sum(ws*(map(testf,values)-average)**2,axis=1)  # Fast and numerically precise
 	return (average[:,0], np.sqrt(variance))
