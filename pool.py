@@ -14,12 +14,12 @@ alpha = 0.2
 zeta = 1.0
 eta = 1.8
 gamma = 1.2
-timewindow = 200
+timewindow = 200000
 dm = 0.2
-nparticles = 20
+nparticles = 200
 	
-def runPF(alpha,tau):
-	
+def runPF(params):
+	[alpha,tau] = params
 	env_rng = np.random.mtrand.RandomState()
 	
 	env = ge.GaussianEnv(gamma=gamma,eta=eta,zeta=zeta,x0=0.0,y0=.0,L=1.0,N=1,order=1,sigma=0.1,Lx=1.0,Ly=1.0,randomstate=env_rng)
@@ -40,7 +40,7 @@ def runPF(alpha,tau):
 	
 	results = pf.particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'Silent')
 	
-	return (alpha,results[4])
+	return (alpha,tau,results[4])
 
 if __name__=='__main__':
 	alpha = np.arange(0.001,4.0,0.05)
@@ -51,9 +51,9 @@ if __name__=='__main__':
 	outp = pool.map(runPF,params)
 	outpickle = {}
 	for o in outp:
-		[alpha,rest] = o
-		outpickle[alpha] = rest
-	if len(sys.argn)>1:
+		[alpha,tau,rest] = o
+		outpickle[(alpha,tau)] = rest
+	if len(sys.argv)>1:
 		filename = sys.argv[1]
 	else:
 		filename = "pickle_alphas_1"
