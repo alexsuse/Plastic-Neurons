@@ -17,11 +17,12 @@ alpha = 0.2
 zeta = 1.0
 eta = 1.8
 gamma = 1.2
-timewindow = 10000
+timewindow = 200000
 dm = 0.2
-tau = 0.5
-nparticles = 500
+tau = 10.0
+nparticles = 200
 plotting = True
+gaussian = False
 
 #env is the "environment", that is, the true process to which we don't have access
 
@@ -44,8 +45,8 @@ code_rng.seed(67890)
 
 env.reset(np.array([0.0]))
 code.reset()
-
-[mg,varg,spsg,sg,mseg] = pf.gaussian_filter(code,env,timewindow=timewindow,dt=dt,mode = 'v')
+if gaussian:
+	[mg,varg,spsg,sg,mseg] = pf.gaussian_filter(code,env,timewindow=timewindow,dt=dt,mode = 'v')
 
 env_rng.seed(12345)
 code_rng.seed(67890)
@@ -66,21 +67,21 @@ if plotting:
 	plt.figure()
 	ax1 = plt.gcf().add_subplot(2,1,1)
 	times = np.arange(0.0,dt*timewindow,dt)
-	
-	ax1.plot(times,sg,'r',label='Signal')
-	if sum(sum(spsg)) !=0:
-		(ts,neurs) = np.where(spsg == 1)
-		spiketimes = times[ts]
-		thetas = [code.neurons[i].theta for i in neurs]
-	else:
-		spiketimes = []
-		thetas = []
-	
-	ax1.plot(spiketimes,thetas,'yo',label='Spike times')
-	ax1.plot(times,mg,'b',label='Mean prediction')
-	ax1.set_title('Gaussian Filter')
-	ax1.set_ylabel('Signal space')
-	ax1.legend()
+	if gaussian:	
+		ax1.plot(times,sg,'r',label='Signal')
+		if sum(sum(spsg)) !=0:
+			(ts,neurs) = np.where(spsg == 1)
+			spiketimes = times[ts]
+			thetas = [code.neurons[i].theta for i in neurs]
+		else:
+			spiketimes = []
+			thetas = []
+		
+		ax1.plot(spiketimes,thetas,'yo',label='Spike times')
+		ax1.plot(times,mg,'b',label='Mean prediction')
+		ax1.set_title('Gaussian Filter')
+		ax1.set_ylabel('Signal space')
+		ax1.legend()
 	
 	ax2 = plt.gcf().add_subplot(2,1,2)
 	
