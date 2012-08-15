@@ -50,7 +50,7 @@ class PoissonPlasticNeuron(object):
 	def likelihood(self,x):
 		liks = np.zeros_like(x)
 		exponent = (x-self.theta)**2/self.alpha**2
-		liks = np.exp(-0.5*exponent)*self.phi*self.oldmu
+		liks = np.exp(-0.5*exponent)*self.phi
 		return liks
 	def resetmu(self,x=None):
 		if x==None:

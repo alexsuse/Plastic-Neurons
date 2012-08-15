@@ -48,14 +48,18 @@ if __name__=='__main__':
 	pool = Pool(processes= ncpus)
 	params = [[a,t] for a in alpha for t in taus]
 	outp = pool.map(runPF,params)
+	mmse = np.zeros((alpha.size,taus.size))
 	outpickle = {}
 	for o in outp:
-		[alpha,tau,rest] = o
-		outpickle[(alpha,tau)] = rest
+		[al,tau,rest] = o
+		outpickle[(al,tau)] = rest
+	for i,a in enumerate(alpha):
+		for j,t in enumerate(taus):
+			mmse[i,j] = outpickle[(a,t)]
 	if len(sys.argv)>1:
 		filename = sys.argv[1]
 	else:
 		filename = "pickle_alphas_1"
 	fi= open(filename,'w')
-	pic.dump([outpickle,alphas,taus],fi)
+	pic.dump([mmse,alphas,taus],fi)
 	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")
