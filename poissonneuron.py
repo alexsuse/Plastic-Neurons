@@ -43,14 +43,18 @@ class PoissonPlasticNeuron(object):
 		if self.rng.uniform()<r:
 			self.oldmu = self.mu+(1.0-self.mu)*dt/self.tau
 			self.mu = self.mu - self.dm
+<<<<<<< HEAD
 			self.mu = self.mu if self.mu > 0.00 else 0.0001
+=======
+			self.mu = self.mu if self.mu > 0.00 else 0.000
+>>>>>>> old-state
 			return [1,r]
 		self.mu = self.mu+(1.0-self.mu)*dt/self.tau
 		return [0,r]
 	def likelihood(self,x):
 		liks = np.zeros_like(x)
 		exponent = (x-self.theta)**2/self.alpha**2
-		liks = np.exp(-0.5*exponent)*self.phi*self
+		liks = np.exp(-0.5*exponent)*self.phi
 		return liks
 	def resetmu(self,x=None):
 		if x==None:

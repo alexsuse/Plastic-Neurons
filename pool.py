@@ -26,7 +26,7 @@ def runPF(params):
 	
 	#code is the population of neurons, plastic poisson neurons	
 	code_rng = np.random.mtrand.RandomState()
-	code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-20.0,20.0,0.15),dm=dm,randomstate=code_rng,alpha=alpha)
+	code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-10.0,10.0,0.15),dm=dm,randomstate=code_rng,alpha=alpha)
 	
 	#s is the stimulus, sps holds the spikes, rates the rates of each neuron and particles give the position of the particles
 	#weights gives the weights associated with each particle
@@ -48,13 +48,19 @@ if __name__=='__main__':
 	pool = Pool(processes= ncpus)
 	params = [[a,t] for a in alpha for t in taus]
 	outp = pool.map(runPF,params)
+	mmse = np.zeros((alpha.size,taus.size))
 	outpickle = {}
 	nalphas = alpha.size
 	ntaus = taus.size
 	mmse = np.array((nalphas,ntaus))
 	for o in outp:
+<<<<<<< HEAD
 		[alph,tau,rest] = o
 		outpickle[(alph,tau)] = rest
+=======
+		[al,tau,rest] = o
+		outpickle[(al,tau)] = rest
+>>>>>>> old-state
 	for i,a in enumerate(alpha):
 		for j,t in enumerate(taus):
 			mmse[i,j] = outpickle[(a,t)]
@@ -63,5 +69,9 @@ if __name__=='__main__':
 	else:
 		filename = "pickle_alphas_1"
 	fi= open(filename,'w')
+<<<<<<< HEAD
 	pic.dump([mmse,alpha,taus],fi)
+=======
+	pic.dump([mmse,alphas,taus],fi)
+>>>>>>> old-state
 	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")
