@@ -1,0 +1,7 @@
+Scripts for running a particle filter on Poisson observations
+
+pool.py - runs multiple instances of the particle filter with different values for the tuning width and adaption time constant
+
+script.py - compares gaussian and particle filters for the task
+
+scriptbistable.py - runs a particle filter task on a bistable process
