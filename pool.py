@@ -26,7 +26,7 @@ def runPF(params):
 	
 	#code is the population of neurons, plastic poisson neurons	
 	code_rng = np.random.mtrand.RandomState()
-	code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-20.0,20.0,0.15),dm=dm,randomstate=code_rng,alpha=alpha)
+	code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-10.0,10.0,0.15),dm=dm,randomstate=code_rng,alpha=alpha)
 	
 	#s is the stimulus, sps holds the spikes, rates the rates of each neuron and particles give the position of the particles
 	#weights gives the weights associated with each particle

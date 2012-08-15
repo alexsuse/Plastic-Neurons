@@ -94,8 +94,9 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
 		if a:
 			liks = code.neurons[a[0]].likelihood(particles[i,:])
 			weights[i,:] = weights[i-1,:]*liks
-			if np.sum(weights[i,:]==0.0):
+			if np.sum(weights[i,:])==0.0:
 				print "DANGER, DANGER"
+				print np.sum(weights[i,:])
 				print liks
 				print weights
 				weights[i,:] = 1.0/nparticles
