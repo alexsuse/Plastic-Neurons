@@ -54,13 +54,8 @@ if __name__=='__main__':
 	ntaus = taus.size
 	mmse = np.array((nalphas,ntaus))
 	for o in outp:
-<<<<<<< HEAD
-		[alph,tau,rest] = o
-		outpickle[(alph,tau)] = rest
-=======
 		[al,tau,rest] = o
 		outpickle[(al,tau)] = rest
->>>>>>> old-state
 	for i,a in enumerate(alpha):
 		for j,t in enumerate(taus):
 			mmse[i,j] = outpickle[(a,t)]
@@ -69,9 +64,5 @@ if __name__=='__main__':
 	else:
 		filename = "pickle_alphas_1"
 	fi= open(filename,'w')
-<<<<<<< HEAD
 	pic.dump([mmse,alpha,taus],fi)
-=======
-	pic.dump([mmse,alphas,taus],fi)
->>>>>>> old-state
 	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")

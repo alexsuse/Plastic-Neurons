@@ -43,11 +43,7 @@ class PoissonPlasticNeuron(object):
 		if self.rng.uniform()<r:
 			self.oldmu = self.mu+(1.0-self.mu)*dt/self.tau
 			self.mu = self.mu - self.dm
-<<<<<<< HEAD
 			self.mu = self.mu if self.mu > 0.00 else 0.0001
-=======
-			self.mu = self.mu if self.mu > 0.00 else 0.000
->>>>>>> old-state
 			return [1,r]
 		self.mu = self.mu+(1.0-self.mu)*dt/self.tau
 		return [0,r]
