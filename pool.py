@@ -38,24 +38,30 @@ def runPF(params):
 	code.reset()
 	
 	results = pf.particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'Silent')
-	
+	print "ping"	
 	return [alpha,tau,results[4]]
 
 if __name__=='__main__':
-	alpha = np.arange(0.001,4.0,0.05)
-	taus = np.arange(0.001,10.0,0.5)
+	alpha = np.arange(0.001,4.0,0.1)
+	taus = np.arange(0.001,10.0,1.0)
 	ncpus = mp.cpu_count()
 	pool = Pool(processes= ncpus)
 	params = [[a,t] for a in alpha for t in taus]
 	outp = pool.map(runPF,params)
 	outpickle = {}
+	nalphas = alpha.size
+	ntaus = taus.size
+	mmse = np.array((nalphas,ntaus))
 	for o in outp:
-		[alpha,tau,rest] = o
-		outpickle[(alpha,tau)] = rest
+		[alph,tau,rest] = o
+		outpickle[(alph,tau)] = rest
+	for i,a in enumerate(alpha):
+		for j,t in enumerate(taus):
+			mmse[i,j] = outpickle[(a,t)]
 	if len(sys.argv)>1:
 		filename = sys.argv[1]
 	else:
 		filename = "pickle_alphas_1"
 	fi= open(filename,'w')
-	pic.dump([outpickle,alphas,taus],fi)
+	pic.dump([mmse,alpha,taus],fi)
 	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")
