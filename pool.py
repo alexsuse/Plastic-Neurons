@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import gaussianenv as ge
 import particlefilter as pf
 import poissonneuron as pn
@@ -13,7 +14,7 @@ phi = 1.2
 zeta = 1.0
 eta = 1.8
 gamma = 1.2
-timewindow = 50000
+timewindow = 500000
 dm = 0.2
 nparticles = 200
 	
@@ -49,10 +50,11 @@ if __name__=='__main__':
 	params = [[a,t] for a in alpha for t in taus]
 	outp = pool.map(runPF,params)
 	mmse = np.zeros((alpha.size,taus.size))
+	os.system("""echo "post-processing now..."|mail -s "Simulation" alexsusemihl@gmail.com""")
 	outpickle = {}
 	nalphas = alpha.size
 	ntaus = taus.size
-	mmse = np.array((nalphas,ntaus))
+	mmse = np.zeros((nalphas,ntaus))
 	for o in outp:
 		[al,tau,rest] = o
 		outpickle[(al,tau)] = rest
