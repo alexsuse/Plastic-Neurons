@@ -107,6 +107,8 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
 			rs = np.exp(-0.5*exponent**2/code.alpha**2)*code.neurons[0].phi
 			rs = rs*mus
 			rt = np.sum(rs,axis=0)
+			if rt*dt>1.0:
+				print "WTF??????"
 			weights[i,:] = weights[i-1,:]*(1.0-rt*dt)
 			weights[i,:] = weights[i,:]/np.sum(weights[i,:])
 		if np.sum(weights[i,:]**2)>essthreshold:
