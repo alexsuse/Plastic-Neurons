@@ -59,6 +59,7 @@ def gaussian_filter(code,env,timewindow=20000,dt=0.001,mode='Silent'):
 
 
 def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silent',randomstate=np.random,testf = (lambda x: x)):
+
 	s = np.zeros((timewindow,))
 	s = env.samplestep(dt,N=timewindow).ravel()
 	sps = np.zeros((timewindow,code.N))
@@ -66,11 +67,13 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
 	thets = [n.theta for n in code.neurons]
 	exponent = np.tile(s,(code.N,1))-np.tile(thets,(timewindow,1)).T
 	particles = np.zeros((timewindow,nparticles))
-	grates = np.exp(-0.5*exponent**2/code.alpha**2).T
 	weights = np.ones((timewindow,nparticles))/nparticles
+	
+	grates = np.exp(-0.5*exponent**2/code.alpha**2).T
 	essthreshold= 2.0/nparticles
 	eta = env.geteta()	
 	gamma = env.getgamma()
+	
 	particles[-1,:] = randomstate.normal(env.getstate(),eta**2/(2*gamma),particles[-1,:].shape)
 	olda = ""
 	i=-1
