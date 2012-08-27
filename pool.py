@@ -38,9 +38,9 @@ def runPF(params):
 	env.reset(np.array([0.0]))
 	code.reset()
 	
-	results = pf.particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'Silent')
-	print "ping"	
-	return [alpha,tau,results[4]]
+	results = pf.mse_particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'Silent')
+	print "ping "+str(alpha)+" "+str(tau)	
+	return [alpha,tau,results]
 
 if __name__=='__main__':
 	alpha = np.arange(0.001,4.0,0.1)
