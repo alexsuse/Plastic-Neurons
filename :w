@@ -58,12 +58,16 @@ def gaussian_filter(code,env,timewindow=20000,dt=0.001,mode='Silent'):
 #evaluates the mse of a particle filter for function f
 def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silent',randomstate=np.random,testf = (lambda x: x)):
 
-	mse=0.0
-	sps = np.zeros((code.N))
+	s = np.zeros((timewindow,))
+	s = env.samplestep(dt,N=timewindow).ravel()
+	sps = np.zeros((timewindow,code.N))
+	rates = np.zeros((timewindow,code.N))
+	thets = [n.theta for n in code.neurons]
+	exponent = np.tile(s,(code.N,1))-np.tile(thets,(timewindow,1)).T
 	particles = np.zeros((nparticles))
-	weights = np.ones((nparticles))/nparticles
+	weights = np.ones((timewindow,nparticles))/nparticles
 	
-	thets = np.array([n.theta for n in code.neurons])
+	grates = np.exp(-0.5*exponent**2/code.alpha**2).T
 	essthreshold= 2.0/nparticles
 	eta = env.geteta()	
 	gamma = env.getgamma()
@@ -71,8 +75,8 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 	particles = randomstate.normal(env.getstate(),eta**2/(2*gamma),particles.shape)
 	olda = ""
 	i=-1
-	for i in range(timewindow):
-		stim = env.samplestep(dt,N=1).ravel()
+	for stim in s:
+		i+=1
 		if mode!='Silent':
 			percent = "%2.1f percent "% float(100.0*i/timewindow)
 			if percent!=olda:
@@ -83,12 +87,11 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 			#	print "weights"
 			#	print weights[i-1,:10]
 		#[sps[i,:],rates[i,:]] = code.spikes(s[i],dt)
-		exponent = stim-thets
-		grates = np.exp(-0.5*exponent**2/code.alpha**2)
-		[temp1,_] = code.spikes(stim,dt,grates=grates)
-		sps = temp1
-		particles = particles+dt*env.drift(particles).ravel()+np.sqrt(dt)*randomstate.normal(0.0,eta,nparticles)
-		a = np.where(sps==1)[0]
+		[temp1,temp2] = code.spikes(stim,dt,grates=grates[i,:])
+		sps[i,:] = temp1
+		rates[i,:] = temp2.ravel()
+		particles = particles+dt*env.drift(particles)+np.sqrt(dt)*randomstate.normal(0.0,eta,nparticles)
+		a = np.where(sps[i,:]==1)[0]
 		if a:
 			liks = code.neurons[a[0]].likelihood(particles)
 			weights = weights*liks
@@ -97,7 +100,7 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 				print np.sum(weights)
 				print liks
 				print weights
-				weights = 1.0/nparticles
+				weights[i,:] = 1.0/nparticles
 			weights = weights/np.sum(weights)
 		else:
 			exponent = np.tile(particles,(code.N,1))-np.tile(thets,(nparticles,1)).T
@@ -105,15 +108,17 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 			rs = np.exp(-0.5*exponent**2/code.alpha**2)*code.neurons[0].phi
 			rs = rs*mus
 			rt = np.sum(rs,axis=0)
+			if rt*dt>1.0:
+				print "WTF??????"
 			weights = weights*(1.0-rt*dt)
 			weights = weights/np.sum(weights)
 		if np.sum(weights**2)>essthreshold:
 			particles = particles[choice(weights,shape=particles.shape,randomstate=randomstate)]
 			weights = 1.0/nparticles	
-		m = np.sum(testf(particles)*weights)
-		mse += (m-testf(stim))**2
+		(m,st) = weighted_avg_and_std(particles,weights,nparticles,testf=testf)
+		mse += (m-testf(s))**2
 	
-	mse = mse/float(timewindow)
+	mse = mse/timewindow
 	return mse
 
 
@@ -169,6 +174,8 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
 			rs = np.exp(-0.5*exponent**2/code.alpha**2)*code.neurons[0].phi
 			rs = rs*mus
 			rt = np.sum(rs,axis=0)
+			if rt*dt>1.0:
+				print "WTF??????"
 			weights[i,:] = weights[i-1,:]*(1.0-rt*dt)
 			weights[i,:] = weights[i,:]/np.sum(weights[i,:])
 		if np.sum(weights[i,:]**2)>essthreshold:
@@ -181,6 +188,6 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
 
 
 def weighted_avg_and_std(values, ws,nparticles,axis=None,testf = (lambda x: x)):
-	average = np.repeat(np.array([np.average(map(testf,values),weights=ws,axis=axis)]).T,nparticles,axis=1)
+	average = np.repeat(np.array([np.average(map(testf,values),weights=ws,axis=1)]).T,nparticles,axis=1)
 	variance = np.sum(ws*(map(testf,values)-average)**2,axis=1)  # Fast and numerically precise
 	return (average[:,0], np.sqrt(variance))

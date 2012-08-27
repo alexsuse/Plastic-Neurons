@@ -54,8 +54,7 @@ code_rng.seed(67890)
 env.reset(np.array([0.0]))
 code.reset()
 
-#[mp,varp,spsp,sp,msep,parts,ws] = pf.particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'v',testf = (lambda x:x))
-msep = pf.mse_particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'v',testf = (lambda x:x))
+[mp,varp,spsp,sp,msep,parts,ws] = pf.particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'v',testf = (lambda x:x))
 if gaussian:
 	print "MSE of gaussian filter %f"% mseg
 print "MSE of particle filter %f"% msep
