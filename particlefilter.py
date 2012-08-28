@@ -90,6 +90,7 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 		particles = particles+dt*env.drift(particles).ravel()+np.sqrt(dt)*randomstate.normal(0.0,eta,nparticles)
 		a = np.where(sps==1)[0]
 		if a:
+			spcount +=1
 			liks = code.neurons[a[0]].likelihood(particles)
 			weights = weights*liks
 			if np.sum(weights)==0.0:
@@ -112,9 +113,9 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 			weights = 1.0/nparticles	
 		m = np.sum(testf(particles)*weights)
 		mse += (m-testf(stim))**2
-	
+	frate = spcounts/(dt*timewindow)
 	mse = mse/float(timewindow)
-	return mse
+	return [mse,frate]
 
 
 def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silent',randomstate=np.random,testf = (lambda x: x)):
