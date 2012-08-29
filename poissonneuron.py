@@ -45,7 +45,8 @@ class PoissonPlasticNeuron(object):
 			self.mu = self.mu - self.dm
 			self.mu = self.mu if self.mu > 0.00 else 0.0001
 			return [1,r]
-		self.mu = self.mu+(1.0-self.mu)*dt/self.tau
+		else:
+			self.mu = self.mu+(1.0-self.mu)*dt/self.tau
 		return [0,r]
 	def likelihood(self,x):
 		liks = np.zeros_like(x)

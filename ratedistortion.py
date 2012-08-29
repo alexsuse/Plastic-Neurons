@@ -48,12 +48,14 @@ for nd,delta in enumerate(deltas):
 
 def plot():
 strings = [r'$\tau\delta$ = '+str(i*tau) for i in deltas]
-	
-plt.plot(ls[0,:],epss[0,:],label = strings[0])
-plt.plot(ls[1,:],epss[1,:],label = strings[1])
-plt.plot(ls[2,:],epss[2,:],label = strings[2])
-plt.plot(ls[3,:],epss[3,:],label = strings[3])
-plt.plot(ls[4,:],epss[4,:],label = strings[4])
+
+f = lambda i : plt.plot(ls[i,:],epss[i,:],label=strings[i])
+map(f,range(5)
+#plt.plot(ls[0,:],epss[0,:],label = strings[0])
+#plt.plot(ls[1,:],epss[1,:],label = strings[1])
+#plt.plot(ls[2,:],epss[2,:],label = strings[2])
+#plt.plot(ls[3,:],epss[3,:],label = strings[3])
+#plt.plot(ls[4,:],epss[4,:],label = strings[4])
 plt.xlabel(r'$\lambda$ in spikes/sec')
 plt.ylabel(r'MMSE/$\epsilon_0$')
 plt.title("Rate-Distortion Curve for Adaptive Neurons")
