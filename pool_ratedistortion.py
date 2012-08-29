@@ -13,7 +13,7 @@ dt = 0.001
 zeta = 1.0
 eta = 1.8
 gamma = 1.2
-timewindow = 500000
+timewindow = 5000
 dm = 0.2
 nparticles = 200
 alpha = 0.7
@@ -43,20 +43,20 @@ def runPF(params):
 	return [phi,tau,mmse, spikecount]
 
 if __name__=='__main__':
-	phis = np.arang(0.1,20.0,0.1)
+	phis = np.arange(0.1,20.0,0.1)
 	taus = np.arange(0.001,11.0,2.0)
 	ncpus = mp.cpu_count()
 	pool = Pool(processes= ncpus)
-	params = [[a,t] for a in alpha for t in taus]
+	params = [[p,t] for p in phis for t in taus]
 	outp = pool.map(runPF,params)
-	mmse = np.zeros((alpha.size,taus.size))
+	mmse = np.zeros((phis.size,taus.size))
 	os.system("""echo "post-processing now..."|mail -s "Simulation" alexsusemihl@gmail.com""")
 	mmsedic = {}
 	spikedic = {}
-	nalphas = alpha.size
+	nphis = phis.size
 	ntaus = taus.size
-	mmse = np.zeros((nalphas,ntaus))
-	spcount = np.zeros((nalphas,ntaus))
+	mmse = np.zeros((nphis,ntaus))
+	spcount = np.zeros((nphis,ntaus))
 	for o in outp:
 		[phi,tau,rest,spikec] = o
 		mmsedic[(phi,tau)] = rest
@@ -68,7 +68,7 @@ if __name__=='__main__':
 	if len(sys.argv)>1:
 		filename = sys.argv[1]
 	else:
-		filename = "pickle_alphas_1"
+		filename = "../data/pickle_alphas_1"
 	fi= open(filename,'w')
 	pic.dump([mmse,spcount,alpha,taus],fi)
 	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")

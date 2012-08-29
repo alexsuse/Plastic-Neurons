@@ -14,7 +14,7 @@ phi = 1.2
 zeta = 1.0
 eta = 1.8
 gamma = 1.2
-timewindow = 500000
+timewindow = 1000000
 dm = 0.2
 nparticles = 200
 	
@@ -39,7 +39,7 @@ def runPF(params):
 	code.reset()
 	
 	[mmse,spikecount] = pf.mse_particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'Silent')
-	print "ping "+str(alpha)+" "+str(tau)+" "+str(mmse)
+	print "ping "+str(alpha)+" "+str(tau)+" "+str(mmse)+" "+str(spikecount)
 	return [alpha,tau,mmse, spikecount]
 
 if __name__=='__main__':

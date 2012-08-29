@@ -62,6 +62,7 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 	sps = np.zeros((code.N))
 	particles = np.zeros((nparticles))
 	weights = np.ones((nparticles))/nparticles
+	spcount = 0.0
 	
 	thets = np.array([n.theta for n in code.neurons])
 	essthreshold= 2.0/nparticles
@@ -70,7 +71,6 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 	
 	particles = randomstate.normal(env.getstate(),eta**2/(2*gamma),particles.shape)
 	olda = ""
-	i=-1
 	for i in range(timewindow):
 		stim = env.samplestep(dt,N=1).ravel()
 		if mode!='Silent':
@@ -90,7 +90,7 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 		particles = particles+dt*env.drift(particles).ravel()+np.sqrt(dt)*randomstate.normal(0.0,eta,nparticles)
 		a = np.where(sps==1)[0]
 		if a:
-			spcount +=1
+			spcount +=1.0
 			liks = code.neurons[a[0]].likelihood(particles)
 			weights = weights*liks
 			if np.sum(weights)==0.0:
@@ -113,7 +113,7 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 			weights = 1.0/nparticles	
 		m = np.sum(testf(particles)*weights)
 		mse += (m-testf(stim))**2
-	frate = spcounts/(dt*timewindow)
+	frate = spcount/(dt*timewindow)
 	mse = mse/float(timewindow)
 	return [mse,frate]
 
