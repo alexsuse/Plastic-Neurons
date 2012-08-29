@@ -100,46 +100,25 @@ class GaussianEnv(object):
 		#sample = np.dot(self.khalf,self.S[-1,:])
 		return sample
 		#return np.reshape(sample,(self.N,self.N))[::-1]
-		
-		
+
+
 class BistableEnv(object):
-	"""Implements a gaussian process with correlation structure
-	<S_i(t_k)S_j(t_l)> = exp(-(|x(i)-x(j)|/L)**zeta)*phi(|t_k-t_l|;eta,gamma,order)
-	we take the points x to be regularly distributed on a grid on the square
-	(x0,y0),(x0,y0+Ly),(x0+Lx,y0+Ly),(x0+Lx,y0) and phi is the matern kernel
-	with \nu = order-1/2."""
-	def __init__(self,zeta,gamma,eta,L,N,x0,y0,Lx,Ly,sigma,order,randomstate=None):
-		"""Constructer method, generates all the internal data
-		xs and ys are the x and y coordinates of all the points.
-		zeta, eta, gamma, L are the parameters of the kernel
-		N is the number of subdivisions in the grid, sigma is added
-		to the diagonal of the gram matrix to ensure positive definiteness
-		and order is the order of the matern process
-		k is the covariance matrix, and khalf its cholesky decomposition, used to sample"""
-		self.xs = np.arange(x0,x0+Lx,Lx/N)
-		self.ys = np.arange(y0,y0+Ly,Ly/N)
-		self.zeta = zeta
+	"""Generates a bistable environment with a quadric potential given by 
+	V(x) = gamma*x**4/4 - gamma*x_0*x**2/2, where x_0 determines the equilibrium points (+- x_0)
+	and gamma determines the steepness of the potential.
+	"""
+	def __init__(self,x0,gamma,eta,order,randomstate=None,N=1):
+		"""Constructer method, generates all the internal data"""
+		self.x0 = x0
 		self.gamma = gamma
+		self.N=N
 		self.eta = eta
-		self.L = L
-		self.N = N
-		self.k = np.zeros((N*N,N*N))
 		self.S = np.random.normal(0.0,1.0,(order,N*N))
 		self.order = order if order>0 else 1
 		if randomstate==None:
 			self.rng = np.random
 		else:
 			self.rng=randomstate
-		if N>1:
-			for i in range(0,N*N):
-				for j in range(0,N*N):
-					(ix,iy) =divmod(i,N)
-					(jx,jy) =divmod(j,N)
-					dist = np.sqrt((self.xs[ix]-self.xs[jx])**2 + (self.ys[iy]-self.ys[jy])**2) 
-					self.k[i,j] = np.exp(-(dist/L)**zeta)+sigma*(i==j)
-			self.khalf = np.linalg.cholesky(self.k)
-		else:
-			self.khalf = np.array([1.0])
 	def reset(self,x=None):
 		if x:
 			self.S = x
@@ -148,14 +127,13 @@ class BistableEnv(object):
 	
 	def drift(self,x=None):
 		if x!=None:
-			return -2*self.zeta*self.gamma*x**3+2*self.zeta*self.gamma**2*x 
+			return -self.gamma*x**3+self.x0*self.gamma*x 
 		else:
-			return -2*self.zeta*self.gamma*(self.S**3)+2*self.zeta*self.gamma**2*self.S
+			return -self.gamma*(self.S**3)+self.x0*self.gamma**self.S
 
 	def sample(self):
 		"""Gets an independent sample from the spatial kernel"""
 		s = self.rng.normal(0.0,1.0,self.N*self.N)
-		s = np.dot(self.khalf,s)
 		return np.reshape(s,(self.N,self.N))
 	def getgamma(self):
 		return self.gamma

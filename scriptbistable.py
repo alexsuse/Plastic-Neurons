@@ -16,14 +16,14 @@ alpha = 0.2
 zeta = 4.0
 eta = 1.4
 gamma = 1.0
-timewindow = 20000
+timewindow = 5000
 dm = 0.2
 tau = 0.5
 nparticles = 200
 
 #env is the "environment", that is, the true process to which we don't have access
 
-env = ge.BistableEnv(gamma=gamma,eta=eta,zeta=zeta,x0=0.0,y0=.0,L=1.0,N=1,order=1,sigma=0.1,Lx=1.0,Ly=1.0)
+env = ge.BistableEnv(gamma=gamma,eta=eta,x0=1.0,order=1,N=1)
 env.reset(np.array([0.0]))
 
 #code is the population of neurons, plastic poisson neurons
