@@ -127,9 +127,9 @@ class BistableEnv(object):
 	
 	def drift(self,x=None):
 		if x!=None:
-			return -self.gamma*x**3+self.x0*self.gamma*x 
+			return 4.0*x*(self.x0-x**2).ravel()
 		else:
-			return -self.gamma*(self.S**3)+self.x0*self.gamma**self.S
+			return 4.0*self.S*(self.x0-self.S**2).ravel()
 
 	def sample(self):
 		"""Gets an independent sample from the spatial kernel"""
@@ -146,6 +146,7 @@ class BistableEnv(object):
 		"""Gives a sample of the temporal dependent gp"""
 		sample = np.zeros((N,self.order))
 		for steps in range(N):
+	#		print self.drift()*dt, np.sqrt(dt)*self.eta
 			self.S[:]= self.S[:]+dt*self.drift()+np.sqrt(dt)*self.eta*self.rng.normal(0.0,1.0,(self.order,self.N*self.N))
 			sample[steps,:] = self.S[:]
 		#sample = np.dot(self.khalf,self.S[-1,:])

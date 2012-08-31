@@ -55,6 +55,77 @@ def gaussian_filter(code,env,timewindow=20000,dt=0.001,mode='Silent'):
 	mse = np.average((m-s)**2)
 	return [m,sigma,sps,s,mse]	
 
+
+#evaluates the mse of a particle filter for function f
+def fast_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silent',randomstate=np.random,testf = (lambda x: x)):
+
+	mse=0.0
+	sps = np.zeros((code.N))
+	particles = np.zeros((nparticles))
+	weights = np.ones((nparticles))/nparticles
+	spcount = 0.0
+	sptrain = []
+	sptimes = []
+	m = np.zeros(timewindow)
+	st = np.zeros(timewindow)
+	s = np.zeros(timewindow)
+
+	thets = np.array([n.theta for n in code.neurons])
+	essthreshold= 2.0/nparticles
+	eta = env.geteta()	
+	gamma = env.getgamma()
+	
+	particles = randomstate.normal(env.getstate(),eta**2/(2*gamma),particles.shape)
+	olda = ""
+	for i in range(timewindow):
+		stim = env.samplestep(dt,N=1).ravel()
+		s[i] = stim
+		if mode!='Silent':
+			percent = "%2.1f percent "% float(100.0*i/timewindow)
+			if percent!=olda:
+				olda=percent
+				print "particle filter:"+percent
+			#	print "particles"
+			#	print particles[i-1,:10]
+			#	print "weights"
+			#	print weights[i-1,:10]
+		#[sps[i,:],rates[i,:]] = code.spikes(s[i],dt)
+		exponent = stim-thets
+		grates = np.exp(-0.5*exponent**2/code.alpha**2)
+		[temp1,_] = code.spikes(stim,dt,grates=grates)
+		sps = temp1
+		particles = particles+dt*env.drift(particles).ravel()+np.sqrt(dt)*randomstate.normal(0.0,eta,nparticles)
+		a = np.where(sps==1)[0]
+		if a:
+			spcount +=1.0
+			sptrain.append(a)
+			sptimes.append(i)
+			liks = code.neurons[a[0]].likelihood(particles)
+			weights = weights*liks
+			if np.sum(weights)==0.0:
+				print "DANGER, DANGER"
+				print np.sum(weights)
+				print liks
+				print weights
+				weights = 1.0/nparticles
+			weights = weights/np.sum(weights)
+		else:
+			exponent = np.tile(particles,(code.N,1))-np.tile(thets,(nparticles,1)).T
+			mus = np.tile([n.mu for n in code.neurons],(nparticles,1)).T
+			rs = np.exp(-0.5*exponent**2/code.alpha**2)*code.neurons[0].phi
+			rs = rs*mus
+			rt = np.sum(rs,axis=0)
+			weights = weights*(1.0-rt*dt)
+			weights = weights/np.sum(weights)
+		if np.sum(weights**2)>essthreshold:
+			particles = particles[choice(weights,shape=particles.shape,randomstate=randomstate)]
+			weights[:] = 1.0/nparticles	
+		(m[i],st[i]) = weighted_avg_and_std(particles,weights,nparticles,testf=testf)
+		mse += (m[i]-testf(stim))**2
+	frate = spcount/(dt*timewindow)
+	mse = mse/float(timewindow)
+	return [s,mse,frate,m,st,sptrain,sptimes]
+
 #evaluates the mse of a particle filter for function f
 def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silent',randomstate=np.random,testf = (lambda x: x)):
 
@@ -110,7 +181,7 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 			weights = weights/np.sum(weights)
 		if np.sum(weights**2)>essthreshold:
 			particles = particles[choice(weights,shape=particles.shape,randomstate=randomstate)]
-			weights = 1.0/nparticles	
+			weights[:] = 1.0/nparticles	
 		m = np.sum(testf(particles)*weights)
 		mse += (m-testf(stim))**2
 	frate = spcount/(dt*timewindow)
@@ -176,12 +247,18 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
 			particles[i,:] = particles[i,choice(weights[i,:],shape=particles[i,:].shape,randomstate=randomstate)]
 			weights[i,:] = 1.0/nparticles	
 
-	(m,st) = weighted_avg_and_std(particles,weights,nparticles,axis=1,testf=testf)
+	(m,st) = weighted_avg_and_std(particles,weights,nparticles,ax=1,testf=testf)
 	mse = np.average((m-map(testf,s))**2)
 	return [m,st,sps,s,mse,particles,weights]
 
 
-def weighted_avg_and_std(values, ws,nparticles,axis=None,testf = (lambda x: x)):
-	average = np.repeat(np.array([np.average(map(testf,values),weights=ws,axis=axis)]).T,nparticles,axis=1)
-	variance = np.sum(ws*(map(testf,values)-average)**2,axis=1)  # Fast and numerically precise
-	return (average[:,0], np.sqrt(variance))
+def weighted_avg_and_std(values, ws,nparticles,ax=0,testf = (lambda x: x)):
+	average = np.average(map(testf,values),weights=ws,axis=ax)
+	variance = np.sum(ws*(map(testf,values)-average)**2,axis=ax)
+	#average = np.repeat(np.array([np.average(map(testf,values),weights=ws,axis=axis)]).T,nparticles,axis=axis)
+	#else:
+	#	average = np.average(map(testf,values),weights=ws)
+	#	variance = np.sum(ws*(map(testf,values)-average)**2)
+		
+	#variance = np.sum(ws*(map(testf,values)-average)**2,axis=axis)  # Fast and numerically precise
+	return (average, np.sqrt(variance))
