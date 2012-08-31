@@ -46,32 +46,49 @@ def runPF(params):
 	return [alpha,tau,mmse, spikecount]
 
 if __name__=='__main__':
+
+#run parameters, alphas and taus
 	alpha = np.arange(0.001,4.0,0.1)
 	taus = np.arange(0.001,10.0,2.0)
+
+#pool initialization
 	ncpus = mp.cpu_count()
 	pool = Pool(processes= ncpus)
+
+#parameter list
 	params = [[a,t] for a in alpha for t in taus]
+
+#run pool with runPF and params
 	outp = pool.map(runPF,params)
-	mmse = np.zeros((alpha.size,taus.size))
+	
+#POST-PROCESSING
 	os.system("""echo "post-processing now..."|mail -s "Simulation" alexsusemihl@gmail.com""")
+
+#mmses and spikecount lists and dicts
 	mmsedic = {}
 	spikedic = {}
 	nalphas = alpha.size
 	ntaus = taus.size
 	mmse = np.zeros((nalphas,ntaus))
 	spcount = np.zeros((nalphas,ntaus))
+
+#parse output dictionary
 	for o in outp:
 		[al,tau,rest,spikec] = o
 		mmsedic[(al,tau)] = rest
 		spikedic[(al,tau)] = spikec
+
+#store in mmse and spcount matrices
 	for i,a in enumerate(alpha):
 		for j,t in enumerate(taus):
 			mmse[i,j] = mmsedic[(a,t)]
 			spcount[i,j] = spikedic[(a,t)]
+
+#if output is provided, pickle to output otherwise to default file
 	if len(sys.argv)>1:
 		filename = sys.argv[1]
 	else:
-		filename = "pickle_alphas_1"
+		filename = "../data/pickle_alphas_1"
 	fi= open(filename,'w')
 	pic.dump([mmse,spcount,alpha,taus],fi)
 	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")
