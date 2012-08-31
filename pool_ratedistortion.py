@@ -20,7 +20,7 @@ dt = 0.001
 zeta = 1.0
 timewindow = 1000000
 nparticles = 200
-alpha = 0.7
+alpha = 1.0
 
 def runPF(params):
 	[phi,delta] = params
@@ -47,7 +47,7 @@ def runPF(params):
 	return [phi,delta,mmse, spikecount]
 
 if __name__=='__main__':
-	#parameters for running
+#parameters for running
 	deltas = np.arange(0.0,0.6,0.1)
 	phis = np.arange(0.0,100.0,0.5)
 
@@ -56,7 +56,7 @@ if __name__=='__main__':
 	pool = Pool(processes= ncpus)
 
 #parmeters
-	params = [[p,d] for p in phis for d in delta]
+	params = [[p,d] for p in phis for d in deltas]
 
 #DO IT, DO IT NOW!
 	outp = pool.map(runPF,params)
@@ -68,7 +68,7 @@ if __name__=='__main__':
 	mmsedic = {}
 	spikedic = {}
 	nphis = phis.size
-	ndeltas = taus.size
+	ndeltas = deltas.size
 	mmse = np.zeros((nphis,ndeltas))
 	spcount = np.zeros((nphis,ndeltas))
 
@@ -84,7 +84,7 @@ if __name__=='__main__':
 			mmse[i,j] = mmsedic[(p,t)]
 			spcount[i,j] = spikedic[(p,t)]
 
-#print it, pickle it, pack it, technologic
+#print it, pickle it, pack it, technologic technologic technologic
 	if len(sys.argv)>1:
 		filename = sys.argv[1]
 	else:
