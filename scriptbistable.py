@@ -13,7 +13,7 @@ from matplotlib import cm
 dt = 0.001
 phi = 0.1
 alpha = 0.2
-eta = 0.6
+eta = 0.85
 gamma = 2.0
 timewindow = 200000
 dm = 0.2
@@ -33,20 +33,28 @@ code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-3.0,3.0,0
 #s is the stimulus, sps holds the spikes, rates the rates of each neuron and particles give the position of the particles
 #weights gives the weights associated with each particle
 
-[s,mse,frate,m,st,spiketrain,spiketimes] = pf.fast_particle_filter(code,env,dt=dt,timewindow=timewindow,nparticles=nparticles,mode='v')
+f = lambda x : -1.0+2.0/(1.0+np.exp(-5*x))
+
+[s,mse,frate,m,st,spiketrain,spiketimes] = pf.fast_particle_filter(code,env,dt=dt,timewindow=timewindow,nparticles=nparticles,mode='v',testf = f)
 
 plt.close()	
 
 times = np.arange(0.0,dt*timewindow,dt)
+plt.figure()
 
-plt.plot(times,s,'r')
+ax1 = plt.gcf().add_subplot(1,2,1)
+ax1.plot(times,map(f,s),'r')
 
 #m = np.average(particles,weights=weights,axis=1)
 #st = np.std(particles,weights=weights,axis=1)
 #ext = (0.0,dt*timewindow,code.neurons[-1].theta,code.neurons[0].theta)
 #plt.imshow(rates.T,extent=ext,cmap = cm.gist_yarg,aspect = 'auto',interpolation ='nearest')
 thetas = [code.neurons[i].theta for i in spiketrain]
-plt.plot(times[spiketimes],thetas,'yo')
-plt.plot(times,m,'b')
-plt.plot(times,m-st,'k',times,m+st,'k')
-plt.savefig('filtering_bistable.png',dpi=200)
+ax1.plot(times[spiketimes],map(f,thetas),'yo')
+ax1.plot(times,m,'b')
+ax1.plot(times,m-st,'k',times,m+st,'k')
+ax2 = plt.gcf().add_subplot(1,2,2)
+ax2.plot(times,s)
+plt.savefig('filtering_bistable_sigmoid.png',dpi=200)
+
+

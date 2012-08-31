@@ -12,12 +12,14 @@ import sys
 dt = 0.001
 phi = 1.2
 x0 = 1.0
-eta = 1.0
+eta = 0.85
 gamma = 1.0
 timewindow = 1000000
 dm = 0.2
 nparticles = 200
-	
+
+f = lambda x : -1.0+2.0/(1.0+np.exp(-x))
+
 def runPF(params):
 	[alpha,tau] = params
 	env_rng = np.random.mtrand.RandomState()
@@ -28,7 +30,7 @@ def runPF(params):
 	
 	#code is the population of neurons, plastic poisson neurons	
 	code_rng = np.random.mtrand.RandomState()
-	code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-10.0,10.0,0.15),dm=dm,randomstate=code_rng,alpha=alpha)
+	code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-3.0,3.0,0.15),dm=dm,randomstate=code_rng,alpha=alpha)
 	
 	#s is the stimulus, sps holds the spikes, rates the rates of each neuron and particles give the position of the particles
 	#weights gives the weights associated with each particle
@@ -39,7 +41,7 @@ def runPF(params):
 	env.reset(np.array([0.0]))
 	code.reset()
 	
-	[mmse,spikecount] = pf.mse_particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'Silent',testf = lambda x : -1.0+2.0/(np.exp(-x)+np.exp(x)))
+	[mmse,spikecount] = pf.mse_particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'Silent',testf = f)
 	print "ping "+str(alpha)+" "+str(tau)+" "+str(mmse)+" "+str(spikecount)
 	return [alpha,tau,mmse, spikecount]
 
