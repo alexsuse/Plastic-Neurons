@@ -14,7 +14,7 @@ phi = 1.2
 x0 = 1.0
 eta = 0.85
 gamma = 1.0
-timewindow = 1000000
+timewindow = 3000000
 dm = 0.2
 nparticles = 200
 
@@ -48,8 +48,8 @@ def runPF(params):
 if __name__=='__main__':
 
 #run parameters, alphas and taus
-	alpha = np.arange(0.001,4.0,0.1)
-	taus = np.arange(0.001,10.0,2.0)
+	alpha = np.arange(0.001,2.0,0.05)
+	delta = np.arange(0.001,10.0,2.0)
 
 #pool initialization
 	ncpus = mp.cpu_count()
