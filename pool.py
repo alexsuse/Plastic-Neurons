@@ -44,32 +44,52 @@ def runPF(params):
 	return [alpha,tau,mmse, spikecount]
 
 if __name__=='__main__':
-	alpha = np.arange(0.001,4.0,0.1)
+#define parameter ranges
+	alpha = np.arange(0.001,2.0,0.05)
 	taus = np.arange(0.001,10.0,2.0)
+
+#initialize multiprocesning pool
 	ncpus = mp.cpu_count()
 	pool = Pool(processes= ncpus)
+
+#define parameter list
 	params = [[a,t] for a in alpha for t in taus]
+
+#run particle filter on parameters through pool
 	outp = pool.map(runPF,params)
-	mmse = np.zeros((alpha.size,taus.size))
+
+#post-processing
 	os.system("""echo "post-processing now..."|mail -s "Simulation" alexsusemihl@gmail.com""")
+
+#initialize dictionaries for parsing
 	mmsedic = {}
 	spikedic = {}
+
+#allocate output arrays
 	nalphas = alpha.size
 	ntaus = taus.size
 	mmse = np.zeros((nalphas,ntaus))
 	spcount = np.zeros((nalphas,ntaus))
+
+#parse output into dict
 	for o in outp:
 		[al,tau,rest,spikec] = o
 		mmsedic[(al,tau)] = rest
 		spikedic[(al,tau)] = spikec
+
+#get data from dict into  array
 	for i,a in enumerate(alpha):
 		for j,t in enumerate(taus):
 			mmse[i,j] = mmsedic[(a,t)]
 			spcount[i,j] = spikedic[(a,t)]
+
+#find output file
 	if len(sys.argv)>1:
 		filename = sys.argv[1]
 	else:
-		filename = "pickle_alphas_1"
+		filename = "../data/pickle_alphas_1"
+
+#dump and go
 	fi= open(filename,'w')
 	pic.dump([mmse,spcount,alpha,taus],fi)
 	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")
