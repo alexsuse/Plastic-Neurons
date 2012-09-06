@@ -49,7 +49,7 @@ if __name__=='__main__':
 
 #run parameters, alphas and taus
 	alpha = np.arange(0.001,2.0,0.05)
-	delta = np.arange(0.001,10.0,2.0)
+	taus = np.arange(0.001,10.0,2.0)
 
 #pool initialization
 	ncpus = mp.cpu_count()
