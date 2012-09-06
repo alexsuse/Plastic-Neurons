@@ -166,9 +166,11 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 			weights = weights*liks
 			if np.sum(weights)==0.0:
 				print "DANGER, DANGER"
-				print np.sum(weights)
-				print liks
-				print weights
+				print "total weight", np.sum(weights)
+				print "likelihoods", liks
+				print "weights", weights
+				print "particles",particles
+				print "spiker", a
 				weights[:] = 1.0/nparticles
 			weights = weights/np.sum(weights)
 		else:
