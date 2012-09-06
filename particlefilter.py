@@ -107,7 +107,7 @@ def fast_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='
 				print np.sum(weights)
 				print liks
 				print weights
-				weights = 1.0/nparticles
+				weights[:] = 1.0/nparticles
 			weights = weights/np.sum(weights)
 		else:
 			exponent = np.tile(particles,(code.N,1))-np.tile(thets,(nparticles,1)).T
@@ -169,7 +169,7 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 				print np.sum(weights)
 				print liks
 				print weights
-				weights = 1.0/nparticles
+				weights[:] = 1.0/nparticles
 			weights = weights/np.sum(weights)
 		else:
 			exponent = np.tile(particles,(code.N,1))-np.tile(thets,(nparticles,1)).T
