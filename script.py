@@ -12,16 +12,17 @@ from matplotlib import cm
 #parameter definitions
 
 dt = 0.001
-phi = 1.2
-alpha = 0.2
+phi = 0.2
 zeta = 1.0
 eta = 1.8
 gamma = 1.2
+alpha = 0.5
 timewindow = 20000
 dm = 0.2
-tau = 1.0
 nparticles = 200
-plotting = False
+
+tau = 1.0
+plotting = True
 gaussian = False
 
 #env is the "environment", that is, the true process to which we don't have access
@@ -53,53 +54,79 @@ code_rng.seed(67890)
 
 env.reset(np.array([0.0]))
 code.reset()
-
 #[mp,varp,spsp,sp,msep,parts,ws] = pf.particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'v',testf = (lambda x:x))
-msep = pf.mse_particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'v',testf = (lambda x:x))
+[s,msep,spikecount,m,st,sptrain,sptimes] = pf.fast_particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'v',testf = (lambda x:x))
 if gaussian:
 	print "MSE of gaussian filter %f"% mseg
 print "MSE of particle filter %f"% msep
 
-if plotting:
-	
-	matplotlib.rcParams['font.size']=10
-	
-	plt.close()	
-	plt.figure()
-	ax1 = plt.gcf().add_subplot(2,1,1)
-	times = np.arange(0.0,dt*timewindow,dt)
-	if gaussian:	
-		ax1.plot(times,sg,'r',label='Signal')
-		if sum(sum(spsg)) !=0:
-			(ts,neurs) = np.where(spsg == 1)
-			spiketimes = times[ts]
-			thetas = [code.neurons[i].theta for i in neurs]
-		else:
-			spiketimes = []
-			thetas = []
-		
-		ax1.plot(spiketimes,thetas,'yo',label='Spike times')
-		ax1.plot(times,mg,'b',label='Mean prediction')
-		ax1.set_title('Gaussian Filter')
-		ax1.set_ylabel('Signal space')
-		ax1.legend()
-	
-	ax2 = plt.gcf().add_subplot(2,1,2)
-	
-	ax2.plot(times,sp,'r',label='Signal')
-	if sum(sum(spsp)) !=0:
-		(tsp,neursp) = np.where(spsp == 1)
-		spiketimesp = times[tsp]
-		thetasp = [code.neurons[i].theta for i in neursp]
-	else:
-		spiketimesp = []
-		thetasp = []
-	
-	ax2.plot(spiketimesp,thetasp,'yo',label='Spike times')
-	ax2.plot(times,mp,'b',label='Mean prediction')
-	ax2.set_ylabel('Signal space')
-	ax2.set_xlabel('Time')
-	ax2.legend()
-	ax2.set_title('Particle Filter')
-	
-	plt.savefig('filtering.png',dpi=150)
+
+times = np.arange(0.0,dt*timewindow,dt)
+plt.figure()
+
+ax1 = plt.gcf().add_subplot(1,1,1)
+ax1.plot(times,s,'r',label = 'True Sate')
+
+#m = np.average(particles,weights=weights,axis=1)
+#st = np.std(particles,weights=weights,axis=1)
+#ext = (0.0,dt*timewindow,code.neurons[-1].theta,code.neurons[0].theta)
+#plt.imshow(rates.T,extent=ext,cmap = cm.gist_yarg,aspect = 'auto',interpolation ='nearest')
+thetas = [code.neurons[i].theta for i in sptrain]
+ax1.plot(times[sptimes],thetas,'yo',label='Observed Spikes')
+ax1.plot(times,m,'b',label='Posterior Mean')
+ax1.plot(times,m-st,'gray',times,m+st,'gray')
+#ax2 = plt.gcf().add_subplot(1,2,2)
+#ax2.plot(times,s)
+plt.xlabel('Time (in seconds)')
+plt.ylabel('Space (in cm)')
+plt.legend()
+plt.title('State Estimation in a Diffusion System')
+plt.savefig('filtering.png',dpi=600)
+
+
+
+#if plotting:
+#	
+#	matplotlib.rcParams['font.size']=10
+#	
+#	plt.close()	
+#	plt.figure()
+#	if gaussian:
+#		ax1 = plt.gcf().add_subplot(2,1,1)
+#	times = np.arange(0.0,dt*timewindow,dt)
+#	if gaussian:	
+#		ax1.plot(times,sg,'r',label='Signal')
+#		if sum(sum(spsg)) !=0:
+#			(ts,neurs) = np.where(spsg == 1)
+#			spiketimes = times[ts]
+#			thetas = [code.neurons[i].theta for i in neurs]
+#		else:
+#			spiketimes = []
+#			thetas = []
+#		
+#		ax1.plot(spiketimes,thetas,'yo',label='Spike times')
+#		ax1.plot(times,mg,'b',label='Mean prediction')
+#		ax1.set_title('Gaussian Filter')
+#		ax1.set_ylabel('Signal space')
+#		ax1.legend()
+#	
+#	if gaussian:
+#		ax2 = plt.gcf().add_subplot(2,1,2)
+#	else:
+#		ax2 = plt.gcf().add_subplot(1,1,1)
+#	ax2.plot(times,sp,'r',label='Signal')
+#	if sum(sum(spsp)) !=0:
+#		(tsp,neursp) = np.where(spsp == 1)
+#		spiketimesp = times[tsp]
+#		thetasp = [code.neurons[i].theta for i in neursp]
+#	else:
+#		spiketimesp = []
+#		thetasp = []
+#	
+#	ax2.plot(spiketimesp,thetasp,'yo',label='Spike times')
+#	ax2.plot(times,mp,'b',label='Mean prediction')
+#	ax2.set_ylabel('Signal space')
+#	ax2.set_xlabel('Time')
+#	ax2.legend()
+#	ax2.set_title('Particle Filter')
+#	

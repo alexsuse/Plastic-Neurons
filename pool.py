@@ -17,7 +17,7 @@ gamma = 1.2
 timewindow = 1000000
 dm = 0.2
 nparticles = 200
-	
+
 def runPF(params):
 	[alpha,tau] = params
 	env_rng = np.random.mtrand.RandomState()
