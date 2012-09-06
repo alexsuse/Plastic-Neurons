@@ -170,7 +170,9 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
 				print "likelihoods", liks
 				print "weights", weights
 				print "particles",particles
-				print "spiker", a
+				print "spiker", a[0]
+				print "mu", code.neurons[a[0]].mu
+				print "theta",code.neurons[a[0]].theta
 				weights[:] = 1.0/nparticles
 			weights = weights/np.sum(weights)
 		else:
