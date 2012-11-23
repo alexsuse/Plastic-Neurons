@@ -10,12 +10,12 @@ import os
 import sys
 
 dt = 0.001
-phi = 1.2
+phi = 1.0
 zeta = 1.0
-eta = 1.8
-gamma = 1.2
+eta = 1.0
+gamma = 1.0
 timewindow = 1000000
-dm = 0.2
+dm = 0.1
 nparticles = 200
 
 def runPF(params):
@@ -28,7 +28,7 @@ def runPF(params):
 	
 	#code is the population of neurons, plastic poisson neurons	
 	code_rng = np.random.mtrand.RandomState()
-	code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-10.0,10.0,0.15),dm=dm,randomstate=code_rng,alpha=alpha)
+	code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-4.0,4.0,0.2),dm=dm,randomstate=code_rng,alpha=alpha)
 	
 	#s is the stimulus, sps holds the spikes, rates the rates of each neuron and particles give the position of the particles
 	#weights gives the weights associated with each particle
@@ -45,8 +45,8 @@ def runPF(params):
 
 if __name__=='__main__':
 #define parameter ranges
-	alpha = np.arange(0.001,2.0,0.05)
-	taus = np.arange(0.001,10.0,2.0)
+	alpha = np.arange(0.001,4.0,0.05)
+	taus = np.arange(0.001,2.0,0.1)
 
 #initialize multiprocesning pool
 	ncpus = mp.cpu_count()
@@ -90,6 +90,7 @@ if __name__=='__main__':
 		filename = "../data/pickle_alphas_1"
 
 #dump and go
-	fi= open(filename,'w')
-	pic.dump([mmse,spcount,alpha,taus],fi)
+	np.savez(file = filename, eps = mmse, alphas = alpha, taus = taus, delta = dm)
+#	fi= open(filename,'w')
+#	pic.dump([mmse,spcount,alpha,taus],fi)
 	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")

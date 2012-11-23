@@ -27,7 +27,7 @@ gamma = 1.0
 eta = 1.0
 alpha = 1.0
 delta = 0.1
-tau = 1.0
+tau = .1
 phi = 1.0
 thetas = np.arange(-4.0,4.0,0.2)
 deltas = np.arange(0.0,2.0,0.1)
@@ -59,6 +59,9 @@ map(f,range(len(deltas)))
 #plt.plot(ls[2,:],epss[2,:],label = strings[2])
 #plt.plot(ls[3,:],epss[3,:],label = strings[3])
 #plt.plot(ls[4,:],epss[4,:],label = strings[4])
+
+np.savez(file = "../data/mean_field_eps", eps = epss, alphas = alphas, deltas = deltas, tau = tau)
+
 plt.xlabel(r'$\lambda$ in spikes/sec')
 plt.ylabel(r'MMSE/$\epsilon_0$')
 plt.title("Rate-Distortion Curve for Adaptive Neurons")
