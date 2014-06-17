@@ -14,8 +14,9 @@ dt = 0.001
 x0 = 1.0
 eta = 0.85
 gamma = 1.0
-timewindow = 3000000
+timewindow = 30000
 dm = 0.0
+tau = 1.0
 nparticles = 200
 
 #f = lambda x : -1.0+2.0/(1.0+np.exp(-x))
@@ -51,7 +52,7 @@ def runPF(params):
                                                dt=dt,nparticles=nparticles,
                                                mode = 'Silent',testf = f)
 	print "ping "+str(alpha)+" "+str(phi)+" "+str(mmse)+" "+str(spikecount)
-	return [alpha,tau,mmse, spikecount]
+	return [alpha,phi,mmse, spikecount]
 
 if __name__=='__main__':
 
@@ -75,10 +76,10 @@ if __name__=='__main__':
 #mmses and spikecount lists and dicts
 	mmsedic = {}
 	spikedic = {}
-	nalphas = alpha.size
-	ntaus = taus.size
-	mmse = np.zeros((nalphas,ntaus))
-	spcount = np.zeros((nalphas,ntaus))
+	nalphas = alphas.size
+	nphis = phis.size
+	mmse = np.zeros((nalphas,nphis))
+	spcount = np.zeros((nalphas,nphis))
 
 #parse output dictionary
 	for o in outp:
@@ -87,8 +88,8 @@ if __name__=='__main__':
 		spikedic[(al,tau)] = spikec
 
 #store in mmse and spcount matrices
-	for i,a in enumerate(alpha):
-		for j,t in enumerate(taus):
+	for i,a in enumerate(alphas):
+		for j,t in enumerate(phis):
 			mmse[i,j] = mmsedic[(a,t)]
 			spcount[i,j] = spikedic[(a,t)]
 
@@ -98,5 +99,5 @@ if __name__=='__main__':
 	else:
 		filename = "../data/pickle_alphas_1"
 	fi= open(filename,'w')
-	pic.dump([mmse,spcount,alpha,taus],fi)
+	pic.dump([mmse,spcount,alphas,phis],fi)
 	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")
