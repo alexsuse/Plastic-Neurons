@@ -1,12 +1,14 @@
 #!/Library/Frameworks/Python.framework/Versions/2.7/bin/python
 """Particle filtering for nonlinear dynamic systems observed through adaptive poisson neurons"""
-import matplotlib
-matplotlib.use('Agg')
+import prettyplotlib as ppl
+from prettyplotlib import plt
+#import matplotlib
+#matplotlib.use('Agg')
 import particlefilter as pf
 import gaussianenv as ge
 import poissonneuron as pn
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from matplotlib import cm
 
 #parameter definitions
@@ -16,8 +18,8 @@ phi = 1.0
 zeta = 1.0
 eta = 3.0
 gamma = 1.0
-alpha = 0.5
-timewindow = 5000
+alpha = 0.3
+timewindow = 3000
 dm = 0.0
 nparticles = 200
 
@@ -40,9 +42,10 @@ code = pn.PoissonPlasticCode(A=alpha,phi=phi/2,tau=tau,thetas=np.arange(-20.0,20
 
 #s is the stimulus, sps holds the spikes, rates the rates of each neuron and particles give the position of the particles
 #weights gives the weights associated with each particle
-
-env_rng.seed(12345)
-code_rng.seed(67890)
+env_seed = np.random.randint(1e8)
+code_seed = np.random.randint(1e8)
+env_rng.seed(env_seed)
+code_rng.seed(code_seed)
 
 env.reset(np.array([0.0]))
 code.reset()
@@ -51,8 +54,8 @@ if gaussian:
     stg = np.sqrt(varg)
     print stg.shape, varg.shape
 
-env_rng.seed(12345)
-code_rng.seed(67890)
+env_rng.seed(env_seed)
+code_rng.seed(code_seed)
 
 env.reset(np.array([0.0]))
 code.reset()
@@ -83,21 +86,19 @@ plt.xlabel('Time (in seconds)')
 plt.ylabel('Space (in cm)')
 plt.legend()
 plt.title('State Estimation in a Diffusion System')
-plt.savefig('filtering.png',dpi=600)
 
 
 
 if plotting:
     
-    matplotlib.rcParams['font.size']=10
+    #matplotlib.rcParams['font.size']=10
     
-    plt.close()    
-    plt.figure()
     if gaussian:
-        ax1 = plt.gcf().add_subplot(2,1,1)
+        fig, (ax1,ax2) = ppl.subplots(1,2,figsize = (16,8))
+    else:
+        fig, ax2 = ppl.subplots(1)
     times = np.arange(0.0,dt*timewindow,dt)
     if gaussian:    
-        ax1.plot(times,sg,'r',label='True State')
         if sum(sum(spsg)) !=0:
             (ts,neurs) = np.where(spsg == 1)
             spiketimes = times[ts]
@@ -106,28 +107,28 @@ if plotting:
             spiketimes = []
             thetas = []
         
-        ax1.plot(spiketimes,thetas,'yo',label='Observed Spikes')
-        ax1.plot(times,mg,'b',label='Posterior Mean')
-        print (mg+stg).shape, (mg-stg).shape, times.shape
-        ax1.fill_between(times,mg-stg,mg+stg,facecolor='gray')
+        l3 = ppl.fill_between(times,mg-stg,mg+stg,ax=ax1)
+        l2, = ax1.plot(times,mg,label='Posterior Mean')
+        l4, = ax1.plot(times,sg,label='True State')
+        l1 = ax1.scatter(spiketimes,thetas,label='Observed Spikes')
+        c1 = l1.get_facecolor()
+        c2 = l2.get_color()
+        c3 = l3.get_facecolor()
+        c4 = l4.get_color()
         ax1.set_title('Gaussian Filter')
         ax1.set_ylabel('Position [cm] (Preferred Stimulus)')
-        ax1.legend()
+        ppl.legend(ax1)
     
-    if gaussian:
-        ax2 = plt.gcf().add_subplot(2,1,2)
-    else:
-        ax2 = plt.gcf().add_subplot(1,1,1)
     
     thetas = [code.neurons[i].theta for i in sptrain]
-    ax2.plot(times,s,'r',label = 'True Sate')
-    ax2.plot(times[sptimes],thetas,'yo',label='Observed Spikes')
-    ax2.plot(times,m,'b',label='Posterior Mean')
-    ax2.fill_between(times,m-st,m+st,facecolor='gray')
+    ax2.plot(times,s,color=c4,label = 'True Sate')
+    ax2.scatter(times[sptimes],thetas,facecolor=c1,label='Observed Spikes')
+    ax2.plot(times,m,color=c2,label='Posterior Mean')
+    ppl.fill_between(times,m-st,m+st,ax=ax2,facecolor=c3)
     ax2.set_ylabel('Position [cm] (Preferred Stimulus)')
     ax2.set_xlabel('Time')
-    ax2.legend()
+    ppl.legend(ax2)
     ax2.set_title('Particle Filter')
 
-plt.show()    
+#plt.show()    
 plt.savefig('filtering_both.png')

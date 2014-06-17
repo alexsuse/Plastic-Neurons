@@ -10,19 +10,19 @@ import os
 import sys
 
 dt = 0.001
-phi = 1.2
+#phi = 1.2
 x0 = 1.0
 eta = 0.85
 gamma = 1.0
 timewindow = 3000000
-dm = 0.2
+dm = 0.0
 nparticles = 200
 
 #f = lambda x : -1.0+2.0/(1.0+np.exp(-x))
 f = lambda x : x
 
 def runPF(params):
-	[alpha,tau] = params
+	[alpha,phi] = params
 	env_rng = np.random.mtrand.RandomState()
 	
 	#env = ge.GaussianEnv(gamma=gamma,eta=eta,zeta=zeta,x0=0.0,
@@ -50,21 +50,21 @@ def runPF(params):
 	[mmse,spikecount] = pf.mse_particle_filter(code,env,timewindow=timewindow,
                                                dt=dt,nparticles=nparticles,
                                                mode = 'Silent',testf = f)
-	print "ping "+str(alpha)+" "+str(tau)+" "+str(mmse)+" "+str(spikecount)
+	print "ping "+str(alpha)+" "+str(phi)+" "+str(mmse)+" "+str(spikecount)
 	return [alpha,tau,mmse, spikecount]
 
 if __name__=='__main__':
 
 #run parameters, alphas and taus
-	alpha = np.arange(0.001,2.0,0.05)
-	taus = np.arange(0.001,10.0,2.0)
+	alphas = np.arange(0.001,2.0,0.05)
+	phis  = np.arange(1.0,7.0,2.0)
 
 #pool initialization
 	ncpus = mp.cpu_count()
 	pool = Pool(processes= ncpus)
 
 #parameter list
-	params = [[a,t] for a in alpha for t in taus]
+	params = [[a,p] for a in alphas for p in phis]
 
 #run pool with runPF and params
 	outp = pool.map(runPF,params)
