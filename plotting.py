@@ -3,10 +3,15 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import cPickle as pic
+import sys
 plt.rc('text',usetex=True)
 
-fi = open("mmse_bistable_new.pkl","rb")
-data = pic.load(fi)
+try:
+    sys.argv[1]
+    data = pic.load(open(sys.argv[1],"rb"))
+except:
+    fi = open("mmse_bistable_new.pkl","rb")
+    data = pic.load(fi)
 
 string = [r'$\tau\delta$ = %.2f' % float(0.2*data[2][i]) for i in range(5)]
 #string2 = [r'$\tau$ = '+str(data[3][i]) for i in range(5)]

@@ -1,5 +1,6 @@
 #!/usr/bin/python
-"""Gaussian filtering for the OU process observed through adaptive poisson neurons with gaussian tuning functions.
+"""
+Gaussian filtering for the OU process observed through adaptive poisson neurons with gaussian tuning functions.
 """
 import gaussianenv as ge
 import poissonneuron as pn

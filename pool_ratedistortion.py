@@ -26,15 +26,18 @@ def runPF(params):
 	[phi,delta] = params
 	env_rng = np.random.mtrand.RandomState()
 	
-	env = ge.GaussianEnv(gamma=gamma,eta=eta,zeta=zeta,x0=0.0,y0=.0,L=1.0,N=1,order=1,sigma=0.1,Lx=1.0,Ly=1.0,randomstate=env_rng)
+	env = ge.GaussianEnv(gamma=gamma,eta=eta,zeta=zeta,x0=0.0,y0=.0,L=1.0,N=1,
+                         order=1,sigma=0.1,Lx=1.0,Ly=1.0,randomstate=env_rng)
 	env.reset(np.array([0.0]))
 	
 	#code is the population of neurons, plastic poisson neurons	
 	code_rng = np.random.mtrand.RandomState()
-	code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=thetas,dm=delta,randomstate=code_rng,alpha=alpha)
+	code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=thetas,dm=delta,
+                                 randomstate=code_rng,alpha=alpha)
 	
-	#s is the stimulus, sps holds the spikes, rates the rates of each neuron and particles give the position of the particles
-	#weights gives the weights associated with each particle
+	# s is the stimulus, sps holds the spikes, rates the rates of each neuron
+    # and particles give the position of the particles
+	# weights gives the weights associated with each particle
 	
 	env_rng.seed(12345)
 	code_rng.seed(67890)
@@ -42,7 +45,8 @@ def runPF(params):
 	env.reset(np.array([0.0]))
 	code.reset()
 	
-	[mmse,spikecount] = pf.mse_particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'Silent')
+	[mmse,spikecount] = pf.mse_particle_filter(code,env,timewindow=timewindow,dt=dt,
+                                               nparticles=nparticles,mode = 'Silent')
 	print "ping "+str(phi)+" "+str(delta)+" "+str(mmse)+" "+str(spikecount)
 	return [phi,delta,mmse, spikecount]
 
