@@ -258,7 +258,7 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
 
 def weighted_avg_and_std(values, ws,nparticles,ax=0,testf = (lambda x: x)):
 	average = np.average(map(testf,values),weights=ws,axis=ax)
-	variance = np.sum(ws*(map(testf,values)-average)**2,axis=ax)
+	variance = np.average(np.array(map(testf,values))**2,weights=ws,axis=ax)-average**2
 	#average = np.repeat(np.array([np.average(map(testf,values),weights=ws,axis=axis)]).T,nparticles,axis=axis)
 	#else:
 	#	average = np.average(map(testf,values),weights=ws)

@@ -23,7 +23,7 @@ nparticles = 200
 
 tau = 1.0
 plotting = True
-gaussian = False
+gaussian = True
 
 #env is the "environment", that is, the true process to which we don't have access
 
@@ -47,7 +47,7 @@ code_rng.seed(67890)
 env.reset(np.array([0.0]))
 code.reset()
 if gaussian:
-	[mg,varg,spsg,sg,mseg] = pf.gaussian_filter(code,env,timewindow=timewindow,dt=dt,mode = 'v')
+    [mg,varg,spsg,sg,mseg] = pf.gaussian_filter(code,env,timewindow=timewindow,dt=dt,mode = 'v')
 
 env_rng.seed(12345)
 code_rng.seed(67890)
@@ -57,7 +57,7 @@ code.reset()
 #[mp,varp,spsp,sp,msep,parts,ws] = pf.particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'v',testf = (lambda x:x))
 [s,msep,spikecount,m,st,sptrain,sptimes] = pf.fast_particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'v',testf = (lambda x:x))
 if gaussian:
-	print "MSE of gaussian filter %f"% mseg
+    print "MSE of gaussian filter %f"% mseg
 print "MSE of particle filter %f"% msep
 
 
@@ -85,48 +85,44 @@ plt.savefig('filtering.png',dpi=600)
 
 
 
-#if plotting:
-#	
-#	matplotlib.rcParams['font.size']=10
-#	
-#	plt.close()	
-#	plt.figure()
-#	if gaussian:
-#		ax1 = plt.gcf().add_subplot(2,1,1)
-#	times = np.arange(0.0,dt*timewindow,dt)
-#	if gaussian:	
-#		ax1.plot(times,sg,'r',label='Signal')
-#		if sum(sum(spsg)) !=0:
-#			(ts,neurs) = np.where(spsg == 1)
-#			spiketimes = times[ts]
-#			thetas = [code.neurons[i].theta for i in neurs]
-#		else:
-#			spiketimes = []
-#			thetas = []
-#		
-#		ax1.plot(spiketimes,thetas,'yo',label='Spike times')
-#		ax1.plot(times,mg,'b',label='Mean prediction')
-#		ax1.set_title('Gaussian Filter')
-#		ax1.set_ylabel('Signal space')
-#		ax1.legend()
-#	
-#	if gaussian:
-#		ax2 = plt.gcf().add_subplot(2,1,2)
-#	else:
-#		ax2 = plt.gcf().add_subplot(1,1,1)
-#	ax2.plot(times,sp,'r',label='Signal')
-#	if sum(sum(spsp)) !=0:
-#		(tsp,neursp) = np.where(spsp == 1)
-#		spiketimesp = times[tsp]
-#		thetasp = [code.neurons[i].theta for i in neursp]
-#	else:
-#		spiketimesp = []
-#		thetasp = []
-#	
-#	ax2.plot(spiketimesp,thetasp,'yo',label='Spike times')
-#	ax2.plot(times,mp,'b',label='Mean prediction')
-#	ax2.set_ylabel('Signal space')
-#	ax2.set_xlabel('Time')
-#	ax2.legend()
-#	ax2.set_title('Particle Filter')
-#	
+if plotting:
+    
+    matplotlib.rcParams['font.size']=10
+    
+    plt.close()    
+    plt.figure()
+    if gaussian:
+        ax1 = plt.gcf().add_subplot(2,1,1)
+    times = np.arange(0.0,dt*timewindow,dt)
+    if gaussian:    
+        ax1.plot(times,sg,'r',label='Signal')
+        if sum(sum(spsg)) !=0:
+            (ts,neurs) = np.where(spsg == 1)
+            spiketimes = times[ts]
+            thetas = [code.neurons[i].theta for i in neurs]
+        else:
+            spiketimes = []
+            thetas = []
+        
+        ax1.plot(spiketimes,thetas,'yo',label='Spike times')
+        ax1.plot(times,mg,'b',label='Mean prediction')
+        ax1.set_title('Gaussian Filter')
+        ax1.set_ylabel('Signal space')
+        ax1.legend()
+    
+    if gaussian:
+        ax2 = plt.gcf().add_subplot(2,1,2)
+    else:
+        ax2 = plt.gcf().add_subplot(1,1,1)
+    
+    thetas = [code.neurons[i].theta for i in sptrain]
+    ax2.plot(times,s,'r',label = 'True Sate')
+    ax2.plot(times[sptimes],thetas,'yo',label='Observed Spikes')
+    ax2.plot(times,m,'b',label='Posterior Mean')
+    ax2.plot(times,m-st,'gray',times,m+st,'gray')
+    ax2.set_ylabel('Signal space')
+    ax2.set_xlabel('Time')
+    ax2.legend()
+    ax2.set_title('Particle Filter')
+    
+plt.savefig('filtering_both.tiff')

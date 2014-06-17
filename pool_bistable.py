@@ -18,22 +18,28 @@ timewindow = 3000000
 dm = 0.2
 nparticles = 200
 
-f = lambda x : -1.0+2.0/(1.0+np.exp(-x))
+#f = lambda x : -1.0+2.0/(1.0+np.exp(-x))
+f = lambda x : x
 
 def runPF(params):
 	[alpha,tau] = params
 	env_rng = np.random.mtrand.RandomState()
 	
-	#env = ge.GaussianEnv(gamma=gamma,eta=eta,zeta=zeta,x0=0.0,y0=.0,L=1.0,N=1,order=1,sigma=0.1,Lx=1.0,Ly=1.0,randomstate=env_rng)
+	#env = ge.GaussianEnv(gamma=gamma,eta=eta,zeta=zeta,x0=0.0,
+    #                     y0=.0,L=1.0,N=1,order=1,sigma=0.1,
+    #                     Lx=1.0,Ly=1.0,randomstate=env_rng)
 	env = ge.BistableEnv(gamma=gamma,eta=eta,x0=x0,order=1,randomstate=env_rng)
 	env.reset(np.array([0.0]))
 	
 	#code is the population of neurons, plastic poisson neurons	
 	code_rng = np.random.mtrand.RandomState()
-	code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,thetas=np.arange(-3.0,3.0,0.15),dm=dm,randomstate=code_rng,alpha=alpha)
+	code = pn.PoissonPlasticCode(A=alpha,phi=phi,tau=tau,
+                                 thetas=np.arange(-3.0,3.0,0.15),
+                                 dm=dm,randomstate=code_rng,alpha=alpha)
 	
-	#s is the stimulus, sps holds the spikes, rates the rates of each neuron and particles give the position of the particles
-	#weights gives the weights associated with each particle
+	# s is the stimulus, sps holds the spikes, rates the rates of each
+    # neuron and particles give the position of the particles
+	# weights gives the weights associated with each particle
 	
 	env_rng.seed(12345)
 	code_rng.seed(67890)
@@ -41,7 +47,9 @@ def runPF(params):
 	env.reset(np.array([0.0]))
 	code.reset()
 	
-	[mmse,spikecount] = pf.mse_particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'Silent',testf = f)
+	[mmse,spikecount] = pf.mse_particle_filter(code,env,timewindow=timewindow,
+                                               dt=dt,nparticles=nparticles,
+                                               mode = 'Silent',testf = f)
 	print "ping "+str(alpha)+" "+str(tau)+" "+str(mmse)+" "+str(spikecount)
 	return [alpha,tau,mmse, spikecount]
 

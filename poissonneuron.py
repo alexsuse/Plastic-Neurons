@@ -68,7 +68,6 @@ def choice(p,a=None,shape=(1,),randomstate = None):
 		x = np.random.uniform(size=shape)	
 	else:
 		x = randomstate.uniform(size=shape)
-	x = np.random.uniform(size=shape)
 	cump = np.cumsum(p)
 	if cump[-1]!=1:
 		cump=cump/cump[-1]
