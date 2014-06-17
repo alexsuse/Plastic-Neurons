@@ -12,7 +12,7 @@ except:
     fi = open("mmse_bistable_new.pkl","rb")
     data = pic.load(fi)
 
-string = [r'$\phi$ = %.2f' % float(0.2*i) for i in data[2]]
+string = [r'$\phi$ = %.2f' % float(i) for i in data[3]]
 #string2 = [r'$\tau$ = '+str(data[3][i]) for i in range(5)]
 maxmmse = np.max(data[0])
 #maxf = np.max(data[1])
@@ -23,7 +23,7 @@ fig, ax1 = ppl.subplots(1)
 plt.title(r'Estimation')
 #ax2 = plt.gcf().add_subplot(1,2,2)
 #plt.title(r'Firing rate of adaptive code')
-map(f,range(data[2].size))
+map(f,range(data[3].size))
 ax1.legend()
 #ax2.legend()
 ax1.set_xlabel(r'$\alpha$')
