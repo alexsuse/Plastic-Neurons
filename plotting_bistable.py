@@ -3,7 +3,7 @@ from prettyplotlib import plt
 import numpy as np
 import cPickle as pic
 import sys
-plt.rc('text',usetex=True)
+#plt.rc('text',usetex=True)
 
 try:
     sys.argv[1]
@@ -12,6 +12,7 @@ except:
     fi = open("mmse_bistable_new.pkl","rb")
     data = pic.load(fi)
 
+print data[3]
 string = [r'$\phi$ = %.2f' % float(i) for i in data[3]]
 #string2 = [r'$\tau$ = '+str(data[3][i]) for i in range(5)]
 maxmmse = np.max(data[0])
@@ -20,11 +21,11 @@ def f(x):
 	ax1.plot(data[2],data[0][:,x],label=string[x])
 #	ax2.plot(data[2],data[1][:,x]/maxf,label=string2[x])
 fig, ax1 = ppl.subplots(1)
-plt.title(r'Estimation')
+ax1.set_title(r'Estimation')
 #ax2 = plt.gcf().add_subplot(1,2,2)
 #plt.title(r'Firing rate of adaptive code')
 map(f,range(data[3].size))
-ax1.legend()
+ppl.legend(ax1)
 #ax2.legend()
 ax1.set_xlabel(r'$\alpha$')
 ax1.set_ylabel(r'MMSE')
