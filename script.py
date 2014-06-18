@@ -18,7 +18,7 @@ phi = 1.0
 zeta = 1.0
 eta = 3.0
 gamma = 1.0
-alpha = 0.3
+alpha = 0.2
 timewindow = 3000
 dm = 0.0
 nparticles = 200
@@ -107,26 +107,27 @@ if plotting:
             spiketimes = []
             thetas = []
         
-        l3 = ppl.fill_between(times,mg-stg,mg+stg,ax=ax1)
-        l2, = ax1.plot(times,mg,label='Posterior Mean')
         l4, = ax1.plot(times,sg,label='True State')
-        l1 = ax1.scatter(spiketimes,thetas,label='Observed Spikes')
-        c1 = l1.get_facecolor()
+        l2, = ax1.plot(times,mg,label='Posterior Mean')
+        l1, = ax1.plot(spiketimes,thetas,'o',label='Observed Spikes')
+        l3 = ppl.fill_between(times,mg-stg,mg+stg,ax=ax1,alpha=0.2)
+        c1 = l1.get_color()
         c2 = l2.get_color()
         c3 = l3.get_facecolor()
         c4 = l4.get_color()
-        ax1.set_title('Gaussian Filter')
+        ax1.set_title('Gaussian Assumed Density Filter')
         ax1.set_ylabel('Position [cm] (Preferred Stimulus)')
+        ax1.set_xlabel('Time [s]')
         ppl.legend(ax1)
     
     
     thetas = [code.neurons[i].theta for i in sptrain]
     ax2.plot(times,s,color=c4,label = 'True Sate')
-    ax2.scatter(times[sptimes],thetas,facecolor=c1,label='Observed Spikes')
     ax2.plot(times,m,color=c2,label='Posterior Mean')
-    ppl.fill_between(times,m-st,m+st,ax=ax2,facecolor=c3)
+    ax2.plot(times[sptimes],thetas,'o',color=c1,label='Observed Spikes')
+    ppl.fill_between(times,m-st,m+st,ax=ax2,facecolor=c3,alpha=0.2)
     ax2.set_ylabel('Position [cm] (Preferred Stimulus)')
-    ax2.set_xlabel('Time')
+    ax2.set_xlabel('Time [s]')
     ppl.legend(ax2)
     ax2.set_title('Particle Filter')
 
