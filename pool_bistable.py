@@ -11,13 +11,13 @@ import sys
 
 dt = 0.001
 #phi = 1.2
-x0 = 1.0
+x0 = .8
 eta = 0.85
 gamma = 1.0
-timewindow = 30000
+timewindow = 300000
 dm = 0.0
 tau = 1.0
-nparticles = 200
+nparticles = 500
 
 #f = lambda x : -1.0+2.0/(1.0+np.exp(-x))
 f = lambda x : x
@@ -58,7 +58,7 @@ if __name__=='__main__':
 
 #run parameters, alphas and taus
 	alphas = np.arange(0.001,2.0,0.05)
-	phis  = np.arange(1.0,7.0,2.0)
+	phis  = np.arange(1.0,15.0,4.0)
 
 #pool initialization
 	ncpus = mp.cpu_count()
