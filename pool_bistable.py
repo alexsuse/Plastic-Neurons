@@ -19,8 +19,8 @@ dm = 0.0
 tau = 1.0
 nparticles = 500
 
-#f = lambda x : -1.0+2.0/(1.0+np.exp(-x))
-f = lambda x : x
+f = lambda x : -1.0+2.0/(1.0+np.exp(-x))
+#f = lambda x : x
 
 def runPF(params):
 	[alpha,phi] = params
