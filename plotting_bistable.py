@@ -7,8 +7,8 @@ import sys
 
 try:
     sys.argv[1]
-    print "pickling"
     data = pic.load(open(sys.argv[1],"rb"))
+    print "pickling"
 except:
     fi = open("mmse_bistable_new.pkl","rb")
     data = pic.load(fi)
@@ -29,7 +29,7 @@ def get_min(data):
 
 print "subplotting"
 fig, ax1 = ppl.subplots(1)
-ax1.set_title(r'Estimation')
+ax1.set_title(r'Classification')
 
 colors = map(f,range(data[3].size))
 
@@ -42,4 +42,4 @@ ppl.legend(ax1)
 ax1.set_xlabel(r'$\alpha$')
 ax1.set_ylabel(r'MMSE')
 
-plt.savefig("mmse_reconstruction.eps")
+plt.savefig("mmse_classification.eps")
