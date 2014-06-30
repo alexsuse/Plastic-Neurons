@@ -91,6 +91,6 @@ if __name__=='__main__':
 
 #dump and go
 	np.savez(file = filename, eps = mmse, alphas = alpha, taus = taus, delta = dm)
-#	fi= open(filename,'w')
-#	pic.dump([mmse,spcount,alpha,taus],fi)
+	fi= open('../data/pickle_backup.pik','wb')
+	pic.dump([mmse,spcount,alpha,taus],fi)
 	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")
