@@ -11,10 +11,10 @@ plt.rc('text',usetex=True)
 try:
     sys.argv[1]
     #data = pic.load(open(sys.argv[1],"rb"))
-    data = np.load(open(sys.argv[1]))
+    data = np.load(open(sys.argv[1],"rb"))
 except:
-    fi = open("mmse_bistable_new.pkl","rb")
-    data = pic.load(fi)
+    fi = open("../data/pickle_alpha_1","rb")
+    data = np.load(fi)
 
 string = [r'$\tau\delta$ = %.2f' % float(0.1*data[2][i]) for i in range(5)]
 #string2 = [r'$\tau$ = '+str(data[3][i]) for i in range(5)]
@@ -27,7 +27,7 @@ def f(x):
 #plt.figure()
 #ax1 = plt.gcf().add_subplot(1,1,1)
 fig, ax1 = ppl.subplots(1)
-plt.title(r'MMSE for a Discrimination Task')
+plt.title(r'MMSE for a Reconstruction Task with Adaptive Neurons')
 #ax2 = plt.gcf().add_subplot(1,2,2)
 #plt.title(r'Firing rate of adaptive code')
 map(f,range(5))
