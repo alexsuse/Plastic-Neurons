@@ -11,7 +11,7 @@ def choice(p,a=None,shape=(1,),randomstate=np.random):
     if cump[-1]!=1:
         cump=cump/cump[-1]
     idxs = np.searchsorted(cump,x)
-    if a==None:
+    if a is None:
         return idxs
     else:
         return a[idxs]
@@ -152,11 +152,7 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
             if percent!=olda:
                 olda=percent
                 print "particle filter:"+percent
-            #    print "particles"
-            #    print particles[i-1,:10]
-            #    print "weights"
-            #    print weights[i-1,:10]
-        #[sps[i,:],rates[i,:]] = code.spikes(s[i],dt)
+        
         exponent = stim-thets
         grates = np.exp(-0.5*exponent**2/code.alpha**2)
         [temp1,_] = code.spikes(stim,dt,grates=grates)

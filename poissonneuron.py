@@ -9,12 +9,12 @@ class PoissonPlasticNeuron(object):
 		A is the correlation of the gaussian tuning function
 		phi is the maximal firing rate
 		inva the inverse of a is calculated once for reuse"""
-		if randomstate==None:
+		if randomstate is None:
 			self.rng = np.random
 		else:
 			self.rng=randomstate	
 		self.A=A
-		if N == None:
+		if N is None:
 			N = np.size(theta)
 		else:
 			self.N = N
@@ -36,7 +36,7 @@ class PoissonPlasticNeuron(object):
 		return self.phi*self.mu*np.exp(-0.5*exponent).ravel().ravel()
 	def spike(self,S,dt,rate = None):
 		"""Generates a spike with probability rate*dt"""
-		if rate == None:
+		if rate is None:
 			r = dt*self.rate(S)
 		else:
 			r = rate*dt
@@ -54,7 +54,7 @@ class PoissonPlasticNeuron(object):
 		liks = np.exp(-0.5*exponent)*self.phi
 		return liks
 	def resetmu(self,x=None):
-		if x==None:
+		if x is None:
 			tem = self.mu
 			self.mu = self.oldmu
 			self.oldmu = self.mu
@@ -64,7 +64,7 @@ class PoissonPlasticNeuron(object):
 def choice(p,a=None,shape=(1,),randomstate = None):
 	"""chooses an element from a with probabilities p. Can return arbitrarily shaped-samples through the shape argument.
 	p needs not be normalized, as this is checked for."""
-	if randomstate==None:
+	if randomstate is None:
 		x = np.random.uniform(size=shape)	
 	else:
 		x = randomstate.uniform(size=shape)
@@ -72,7 +72,7 @@ def choice(p,a=None,shape=(1,),randomstate = None):
 	if cump[-1]!=1:
 		cump=cump/cump[-1]
 	idxs = np.searchsorted(cump,x)
-	if a==None:
+	if a is None:
 		return idxs
 	else:
 		return a[idxs]
@@ -83,11 +83,11 @@ class PoissonPlasticCode(object):
 		self.N = np.size(thetas)
 		self.A = A
 		self.alpha = alpha
-		if randomstate == None:
+		if randomstate is None:
 			self.rng = np.random
 		else:
 			self.rng = randomstate
-		if A == None:
+		if A is None:
 			self.A= alpha*np.eye(np.size(thetas[0]))
 		self.neurons = []
 		for theta in thetas:
@@ -105,7 +105,7 @@ class PoissonPlasticCode(object):
 			i.resetmu(1.0)
 	def spikes(self,stim,dt,grates=None):
 		sps = np.zeros(self.N)
-		if grates==None:
+		if grates is None:
 			rates = []
 			for i,n in enumerate(self.neurons):
 				[sps[i],r] = n.spike(stim,dt)

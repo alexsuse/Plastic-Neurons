@@ -14,9 +14,9 @@ phi = 1.0
 zeta = 1.0
 eta = 1.0
 gamma = 1.0
-timewindow = 1000000
-dm = 0.1
-nparticles = 200
+timewindow = 100000
+dm = 0.5
+nparticles = 2000
 
 def runPF(params):
 	[alpha,tau] = params
@@ -39,14 +39,14 @@ def runPF(params):
 	env.reset(np.array([0.0]))
 	code.reset()
 	
-	[mmse,spikecount] = pf.mse_particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'Silent',testf = lambda x : -1.0+2.0/(np.exp(-x)+np.exp(x)))
+	[mmse,spikecount] = pf.mse_particle_filter(code,env,timewindow=timewindow,dt=dt,nparticles=nparticles,mode = 'Silent',testf = lambda x : x)
 	print "ping "+str(alpha)+" "+str(tau)+" "+str(mmse)+" "+str(spikecount)
 	return [alpha,tau,mmse, spikecount]
 
 if __name__=='__main__':
 #define parameter ranges
-	alpha = np.arange(0.001,4.0,0.05)
-	taus = np.arange(0.001,2.0,0.1)
+	alpha = np.arange(0.001,4.0,0.2)
+	taus = np.arange(0.001,4.0,0.8)
 
 #initialize multiprocesning pool
 	ncpus = mp.cpu_count()
@@ -91,6 +91,6 @@ if __name__=='__main__':
 
 #dump and go
 	np.savez(file = filename, eps = mmse, alphas = alpha, taus = taus, delta = dm)
-	fi= open('../data/pickle_backup.pik','wb')
+	fi= open(filename+'.pik','wb')
 	pic.dump([mmse,spcount,alpha,taus],fi)
 	os.system("""echo "simulation is ready, dude!"|mail -s "Simulation" alexsusemihl@gmail.com""")
