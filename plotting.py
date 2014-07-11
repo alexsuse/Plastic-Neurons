@@ -16,12 +16,17 @@ except:
     fi = open("../data/pickle_alpha_1","rb")
     data = np.load(fi)
 
-string = [r'$\tau\delta$ = %.2f' % float(0.1*data[2][i]) for i in range(5)]
+taus = data[3]
+alphas = data[2]
+eps = data[0]
+delta = 0.1
+
+string = [r'$\tau\delta$ = %.2f' % float(delta*t) for t in taus]
 #string2 = [r'$\tau$ = '+str(data[3][i]) for i in range(5)]
-maxmmse = np.max(data[0])
+maxmmse = np.max(eps)
 #maxf = np.max(data[1])
 def f(x):
-	ppl.plot(data[2],data[0][:,x]/maxmmse,label=string[x],ax=ax1)
+    ppl.plot(alphas,eps[:,x]/maxmmse,label=string[x],ax=ax1)
 #	ax2.plot(data[2],data[1][:,x]/maxf,label=string2[x])
 #plt.close()
 #plt.figure()
@@ -30,7 +35,7 @@ fig, ax1 = ppl.subplots(1)
 plt.title(r'MMSE for a Reconstruction Task with Adaptive Neurons')
 #ax2 = plt.gcf().add_subplot(1,2,2)
 #plt.title(r'Firing rate of adaptive code')
-map(f,range(5))
+map(f,range(0,10,2))
 ppl.legend(ax1)
 #ax2.legend()
 ax1.set_xlabel(r'$\alpha$')
@@ -39,6 +44,7 @@ ax1.set_ylabel(r'MMSE')
 #ax2.set_ylabel(r'Firing Rate')
 #plt.xlabel(r'Tuning width $\alpha$')
 #plt.ylabel(r'MMSE')
+plt.show()
 #plt.savefig("mmse_discrimination.png",dpi=600)
 plt.savefig("figure_5_8.png",dpi=600)
 plt.savefig("figure_5_8.eps")
