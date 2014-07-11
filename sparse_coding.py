@@ -6,7 +6,7 @@ import particlefilter as pf
 import gaussianenv as ge
 import poissonneuron as pn
 import numpy as np
-
+import cPickle as pic
 #parameter definitions
 
 dt = 0.001
@@ -44,42 +44,60 @@ sparse_eps = np.zeros((dthetas.size,alphas.size))
 dense_eps = np.zeros((dthetas.size,alphas.size))
 particle_eps = np.zeros((dthetas.size,alphas.size))
 
-for i,dtheta in enumerate(dthetas):
-    for j,alpha in enumerate(alphas):
-        print i,dthetas.size,j,alphas.size
-        
-        code = pn.PoissonPlasticCode(A=alpha,phi=phi/2,tau=tau,
-                                     thetas=np.arange(-dtheta,dtheta+0.1,2*dtheta),
-                                     dm=dm,randomstate=code_rng)
-        
-        env_rng.seed(12345)
-        code_rng.seed(67890)
-        env.reset(np.array([0.0]))
-        code.reset()
-        
-        [densem,densevar,spsg,sg,dense_mse] = pf.gaussian_filter(code,env,timewindow=timewindow,dt=dt,
-                                                                dense=True)
-        
-        env_rng.seed(12345)
-        code_rng.seed(67890)
-        env.reset(np.array([0.0]))
-        code.reset()
-        
-        [sparsem,sparsevar,spsg,sg,sparse_mse] = pf.gaussian_filter(code,env,timewindow=timewindow,dt=dt,
-                                                                    dense=False)
-        
-        env_rng.seed(12345)
-        code_rng.seed(67890)
-        env.reset(np.array([0.0]))
-        code.reset()
-        
-        [mp,varp,spsp,sp,msep,parts,ws] = pf.particle_filter(code, env, timewindow=timewindow,
-                                                             dt=dt, nparticles=nparticles,
-                                                             testf=(lambda x:x))
+try:
+    dic = pic.load( open('dense_sparse.pik','r'))
+    sparse_eps = dic['sparse_eps']
+    dense_eps = dic['dense_eps']
+    particle_eps = dic['particle_eps']
+    alphas = dic['alphas']
+    dthetas = dic['dthetas']
+    print "ALL GOOD"
 
-        dense_eps[i,j] = dense_mse
-        sparse_eps[i,j] = sparse_mse
-        particle_eps[i,j] = msep
+except:
+
+    for i,dtheta in enumerate(dthetas):
+        for j,alpha in enumerate(alphas):
+            print i,dthetas.size,j,alphas.size
+            
+            code = pn.PoissonPlasticCode(A=alpha,phi=phi/2,tau=tau,
+                                         thetas=np.arange(-dtheta,dtheta+0.1,2*dtheta),
+                                         dm=dm,randomstate=code_rng)
+            
+            env_rng.seed(12345)
+            code_rng.seed(67890)
+            env.reset(np.array([0.0]))
+            code.reset()
+            
+            [densem,densevar,spsg,sg,dense_mse] = pf.gaussian_filter(code,env,timewindow=timewindow,dt=dt,
+                                                                    dense=True)
+            
+            env_rng.seed(12345)
+            code_rng.seed(67890)
+            env.reset(np.array([0.0]))
+            code.reset()
+            
+            [sparsem,sparsevar,spsg,sg,sparse_mse] = pf.gaussian_filter(code,env,timewindow=timewindow,dt=dt,
+                                                                        dense=False)
+            
+            env_rng.seed(12345)
+            code_rng.seed(67890)
+            env.reset(np.array([0.0]))
+            code.reset()
+            
+            [mp,varp,spsp,sp,msep,parts,ws] = pf.particle_filter(code, env, timewindow=timewindow,
+                                                                 dt=dt, nparticles=nparticles,
+                                                                 testf=(lambda x:x))
+
+            dense_eps[i,j] = dense_mse
+            sparse_eps[i,j] = sparse_mse
+            particle_eps[i,j] = msep
+    with open("dense_sparse.pik","wb") as f:
+        pic.dump({'dense_eps':dense_eps,
+                  'sparse_eps':sparse_eps,
+                  'particle_eps':particle_eps,
+                  'dthetas':dthetas,
+                  'alphas':alphas},
+                  f)
 
 if plotting:
     
