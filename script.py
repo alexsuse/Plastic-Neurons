@@ -14,14 +14,14 @@ from matplotlib import cm
 #parameter definitions
 
 dt = 0.001
-phi = 1.0
+phi = 0.4
 zeta = 1.0
-eta = 3.0
-gamma = 1.0
-alpha = 0.2
+eta = 2.0
+gamma = 2.0
+alpha = 0.1
 timewindow = 3000
 dm = 0.0
-nparticles = 200
+nparticles = 500
 
 tau = 1.0
 plotting = True
@@ -31,14 +31,14 @@ gaussian = True
 
 env_rng = np.random.mtrand.RandomState()
 
-env = ge.BistableEnv(1.5,gamma,eta,1,randomstate=env_rng)
+env = ge.BistableEnv(1.0,gamma,eta,1,randomstate=env_rng)
 env.reset(np.array([0.0]))
 
 #code is the population of neurons, plastic poisson neurons
 
 code_rng = np.random.mtrand.RandomState()
 
-code = pn.PoissonPlasticCode(A=alpha,phi=phi/2,tau=tau,thetas=np.arange(-20.0,20.0,0.15),dm=dm,randomstate=code_rng)
+code = pn.PoissonPlasticCode(A=alpha,phi=phi/2,tau=tau,thetas=np.arange(-5.0,5.0,0.05),dm=dm,randomstate=code_rng)
 
 #s is the stimulus, sps holds the spikes, rates the rates of each neuron and particles give the position of the particles
 #weights gives the weights associated with each particle
@@ -94,7 +94,7 @@ if plotting:
     #matplotlib.rcParams['font.size']=10
     
     if gaussian:
-        fig, (ax1,ax2) = ppl.subplots(1,2,figsize = (16,8))
+        fig, (ax1,ax2) = ppl.subplots(1,2,figsize = (12,6))
     else:
         fig, ax2 = ppl.subplots(1)
     times = np.arange(0.0,dt*timewindow,dt)
@@ -118,7 +118,7 @@ if plotting:
         ax1.set_title('Gaussian Assumed Density Filter')
         ax1.set_ylabel('Position [cm] (Preferred Stimulus)')
         ax1.set_xlabel('Time [s]')
-        ppl.legend(ax1)
+        ppl.legend(ax1).get_frame().set_alpha(0.6)
     
     
     thetas = [code.neurons[i].theta for i in sptrain]
@@ -128,8 +128,14 @@ if plotting:
     ppl.fill_between(times,m-st,m+st,ax=ax2,facecolor=c3,alpha=0.2)
     ax2.set_ylabel('Position [cm] (Preferred Stimulus)')
     ax2.set_xlabel('Time [s]')
-    ppl.legend(ax2)
+    ppl.legend(ax2).get_frame().set_alpha(0.6)
+    
     ax2.set_title('Particle Filter')
 
+    ax1.set_ylim([(m-st).min()-0.5,(m+st).max()+0.5])
+    ax2.set_ylim([(m-st).min()-0.5,(m+st).max()+0.5])
+
 #plt.show()    
+plt.savefig('filtering_both.pdf')
+plt.savefig('filtering_both.eps')
 plt.savefig('filtering_both.png')
