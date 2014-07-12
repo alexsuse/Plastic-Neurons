@@ -84,7 +84,7 @@ except:
             env.reset(np.array([0.0]))
             code.reset()
             
-            [mp,varp,spsp,sp,msep,parts,ws] = pf.particle_filter(code, env, timewindow=timewindow,
+            [msep,ws] = pf.mse_particle_filter(code, env, timewindow=timewindow,
                                                                  dt=dt, nparticles=nparticles,
                                                                  testf=(lambda x:x))
 
