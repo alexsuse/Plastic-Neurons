@@ -17,7 +17,7 @@ gamma = 1.0
 timewindow = 20000
 dm = 0.0
 tau = 1.0
-nparticles = 200
+nparticles = 1000
 plotting = True
 
 #env is the "environment", that is, the true process to which we don't have access
