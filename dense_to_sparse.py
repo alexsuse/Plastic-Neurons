@@ -15,10 +15,10 @@ zeta = 1.0
 eta = 1.0
 gamma = 1.0
 alpha = 0.3
-timewindow = 20000
+timewindow = 10000
 dm = 0.0
 tau = 1.0
-nparticles = 1000
+nparticles = 300
 plotting = True
 
 #env is the "environment", that is, the true process to which we don't have access
@@ -87,9 +87,9 @@ except:
                                                              dt=dt, nparticles=nparticles,
                                                              testf=(lambda x:x))
 
-        dense_eps[i,j] = dense_mse
-        sparse_eps[i,j] = sparse_mse
-        particle_eps[i,j] = msep
+        dense_eps[i] = dense_mse
+        sparse_eps[i] = sparse_mse
+        particle_eps[i] = msep
 
     with open("dense_to_sparse.pik","wb") as f:
         pic.dump({'dense_eps':dense_eps,
