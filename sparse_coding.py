@@ -105,8 +105,10 @@ if plotting:
    
     fig, (ax1,ax2,ax3) = ppl.subplots(1,3)
 
-    ax1.pcolormesh(dense_eps)
-    ax2.pcolormesh(sparse_eps)
-    ax3.pcolormesh(particle_eps)
+    p1 = ax1.pcolormesh(dense_eps)
+    plt.colorbar(p1,ax=ax1)
+    p2 = ax2.pcolormesh(sparse_eps)
+    p3 = ax3.pcolormesh(particle_eps)
+
 
     plt.show()
