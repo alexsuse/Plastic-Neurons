@@ -45,7 +45,7 @@ def run_filters(args):
 
     code_rng = np.random.mtrand.RandomState()
 
-    code = pn.PoissonPlasticCode(phi=phi,tau=tau,alpha=alpha
+    code = pn.PoissonPlasticCode(phi=phi,tau=tau,alpha=alpha,
                                  thetas=np.arange(-dtheta,dtheta+0.1,2*dtheta),
                                  dm=dm,randomstate=code_rng)
     
@@ -70,7 +70,7 @@ def run_filters(args):
     env.reset(np.array([0.0]))
     code.reset()
     
-    [msep,ws] = pf.mse_particle_filter(code, env, timewindow=timewindow,
+    [particle_mse,ws] = pf.mse_particle_filter(code, env, timewindow=timewindow,
                                                          dt=dt, nparticles=nparticles,
                                                          testf=(lambda x:x))
     return i,j,dense_mse,sparse_mse,particle_mse
