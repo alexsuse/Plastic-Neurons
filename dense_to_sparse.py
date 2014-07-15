@@ -7,18 +7,20 @@ import gaussianenv as ge
 import poissonneuron as pn
 import numpy as np
 import cPickle as pic
+import sys
+
 #parameter definitions
 
 dt = 0.001
-phi = 1.2
+phi = 1.0
 zeta = 1.0
 eta = 1.0
 gamma = 1.0
-alpha = 0.3
-timewindow = 10000
+alpha = 0.5
+timewindow = 100000
 dm = 0.0
 tau = 1.0
-nparticles = 300
+nparticles = 600
 plotting = True
 
 #env is the "environment", that is, the true process to which we don't have access
@@ -45,11 +47,15 @@ dense_eps = np.zeros((dthetas.size,))
 particle_eps = np.zeros((dthetas.size,))
 
 try:
-    dic = pic.load( open('dense_to_sparse.pik','r'))
+    filename = sys.argv[1]
+except:
+    filename = 'dense_to_sparse.pik'
+
+try:
+    dic = pic.load( open(filename,'r'))
     sparse_eps = dic['sparse_eps']
     dense_eps = dic['dense_eps']
     particle_eps = dic['particle_eps']
-    alphas = dic['alphas']
     dthetas = dic['dthetas']
     print "ALL GOOD"
 
@@ -91,7 +97,7 @@ except:
         sparse_eps[i] = sparse_mse
         particle_eps[i] = msep
 
-    with open("dense_to_sparse.pik","wb") as f:
+    with open(filename,"wb") as f:
         pic.dump({'dense_eps':dense_eps,
                   'sparse_eps':sparse_eps,
                   'particle_eps':particle_eps,
