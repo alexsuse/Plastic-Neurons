@@ -63,7 +63,7 @@ class GaussianEnv(object):
         return np.reshape(s,(self.N,self.N))
 
     def drift(self,x=None):
-        if x!=None:
+        if x is not None:
             return -np.dot(self.Gamma,np.array([x]))
         else:
             return -np.dot(self.Gamma,self.S)

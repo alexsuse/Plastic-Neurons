@@ -40,7 +40,7 @@ def gaussian_filter(code,env,timewindow=20000,dt=0.001,mode='Silent', dense=Fals
         a = np.where(sps[i,:]==1)[0]
         muterm= 0.0
         sigterm = 0.0
-        if a:
+        if len(a) > 0:
             m[i] = (alpha**2*m[i-1]+sigma[i-1]*code.neurons[a].theta)/(alpha**2+sigma[i-1])    
             sigma[i] = sigma[i-1]*alpha**2/(alpha**2+sigma[i-1])
         else:
@@ -99,7 +99,7 @@ def fast_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='
         sps = temp1
         particles = particles+dt*env.drift(particles).ravel()+np.sqrt(dt)*randomstate.normal(0.0,eta,nparticles)
         a = np.where(sps==1)[0]
-        if a:
+        if len(a) > 0:
             spcount +=1.0
             sptrain.append(a)
             sptimes.append(i)
@@ -137,12 +137,12 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
     particles = np.zeros((nparticles))
     weights = np.ones((nparticles))/nparticles
     spcount = 0.0
-    
+
     thets = np.array([n.theta for n in code.neurons])
     essthreshold= 2.0/nparticles
     eta = env.geteta()    
     gamma = env.getgamma()
-    
+
     particles = randomstate.normal(env.getstate(),eta**2/(2*gamma),particles.shape)
     olda = ""
     for i in range(timewindow):
@@ -152,14 +152,14 @@ def mse_particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='S
             if percent!=olda:
                 olda=percent
                 print "particle filter:"+percent
-        
+
         exponent = stim-thets
         grates = np.exp(-0.5*exponent**2/code.alpha**2)
         [temp1,_] = code.spikes(stim,dt,grates=grates)
         sps = temp1
         particles = particles+dt*env.drift(particles).ravel()+np.sqrt(dt)*randomstate.normal(0.0,eta,nparticles)
         a = np.where(sps==1)[0]
-        if a:
+        if len(a) > 0:
             spcount +=1.0
             liks = code.neurons[a[0]].likelihood(particles)
             weights = weights*liks
@@ -228,7 +228,7 @@ def particle_filter(code,env,timewindow=20000,dt=0.001,nparticles=20,mode='Silen
         rates[i,:] = temp2.ravel()
         particles[i,:] = particles[i-1,:]+dt*env.drift(particles[i-1,:])+np.sqrt(dt)*randomstate.normal(0.0,eta,nparticles)
         a = np.where(sps[i,:]==1)[0]
-        if a:
+        if len(a) > 0:
             liks = code.neurons[a[0]].likelihood(particles[i,:])
             weights[i,:] = weights[i-1,:]*liks
             if np.sum(weights[i,:])==0.0:

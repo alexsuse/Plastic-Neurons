@@ -91,7 +91,8 @@ class PoissonPlasticCode(object):
 			self.A= alpha*np.eye(np.size(thetas[0]))
 		self.neurons = []
 		for theta in thetas:
-			self.neurons.append(PoissonPlasticNeuron(theta,self.A,phi,tau,dm=dm,randomstate=randomstate,alpha=alpha))
+			self.neurons.append(PoissonPlasticNeuron(theta,self.A,phi,tau,dm=dm,
+                                                     randomstate=randomstate,alpha=self.alpha))
 	def rates(self,stim):
 		rs = []
 		for n in self.neurons:

@@ -6,17 +6,23 @@ import poissonneuron as pn
 import numpy as np
 import cPickle as pic
 import multiprocessing as mp
+import sys
 
 #parameter definitions
 
 plotting = True
 
-dthetas = np.arange(0.1,2.0,0.1)
-alphas = np.arange(0.1,2.0,0.1)
+dthetas = np.arange(0.01,2.0,0.05)
+alphas = np.arange(0.01,2.0,0.05)
 
 sparse_eps = np.zeros((dthetas.size,alphas.size))
 dense_eps = np.zeros((dthetas.size,alphas.size))
 particle_eps = np.zeros((dthetas.size,alphas.size))
+
+try:
+    filename = sys.argv[1]
+except:
+    filename = 'dense_sparse.pik'
 
 def run_filters(args):
 
@@ -29,8 +35,7 @@ def run_filters(args):
     timewindow = 20000
     dm = 0.0
     tau = 1.0
-    nparticles = 500
-    plotting = True
+    nparticles = 1000
 
     #env is the "environment", that is, the true process to which we don't have access
 
@@ -46,8 +51,10 @@ def run_filters(args):
     code_rng = np.random.mtrand.RandomState()
 
     code = pn.PoissonPlasticCode(phi=phi,tau=tau,alpha=alpha,
-                                 thetas=np.arange(-dtheta,dtheta+0.1,2*dtheta),
+                                 thetas=np.arange(-dtheta,1.1*dtheta,2*dtheta),
                                  dm=dm,randomstate=code_rng)
+
+    print code.neurons[0].theta
     
     env_rng.seed(12345)
     code_rng.seed(67890)
@@ -56,7 +63,7 @@ def run_filters(args):
     
     [densem,densevar,spsg,sg,dense_mse] = pf.gaussian_filter(code,env,timewindow=timewindow,dt=dt,
                                                             dense=True)
-    
+   
     env_rng.seed(12345)
     code_rng.seed(67890)
     env.reset(np.array([0.0]))
@@ -64,7 +71,7 @@ def run_filters(args):
     
     [sparsem,sparsevar,spsg,sg,sparse_mse] = pf.gaussian_filter(code,env,timewindow=timewindow,dt=dt,
                                                                 dense=False)
-    
+
     env_rng.seed(12345)
     code_rng.seed(67890)
     env.reset(np.array([0.0]))
@@ -76,7 +83,7 @@ def run_filters(args):
     return i,j,dense_mse,sparse_mse,particle_mse
 
 try:
-    dic = pic.load( open('dense_sparse.pik','r'))
+    dic = pic.load( open(filename,'r'))
     sparse_eps = dic['sparse_eps']
     dense_eps = dic['dense_eps']
     particle_eps = dic['particle_eps']
@@ -119,10 +126,9 @@ if plotting:
    
     fig, (ax1,ax2,ax3) = ppl.subplots(1,3)
 
-    p1 = ax1.pcolormesh(dense_eps)
-    plt.colorbar(p1,ax=ax1)
-    p2 = ax2.pcolormesh(sparse_eps)
-    p3 = ax3.pcolormesh(particle_eps)
+    p1 = ppl.pcolormesh(fig,ax1,dense_eps)
+    p2 = ppl.pcolormesh(fig,ax2,sparse_eps)
+    p3 = ppl.pcolormesh(fig,ax3,particle_eps)
 
 
     plt.show()
