@@ -50,9 +50,10 @@ def gaussian_filter(code,env,timewindow=20000,dt=0.001,mode='Silent', dense=Fals
                 for n in code.neurons:
                     km = n.getmu()
                     cm = np.exp(-0.5*(m[i-1]-n.theta)**2/(alpha**2+sigma[i-1]))
-                    muterm = muterm + km*cm*(m[i-1]+n.theta)
-                    sigterm = sigterm + km*cm*(1.0-(m[i-1]+n.theta)**2/(alpha**2+sigma[i-1]))
-                vorfaktor = sigma[i-1]*phi/(np.sqrt(1.0+sigma[i-1]/alpha**2)*(alpha**2+sigma[i-1]))
+                    muterm = muterm + km*cm*(m[i-1]-n.theta)
+                    sigterm = sigterm + km*cm*(sigma[i-1]+(m[i-1]-n.theta)**2)
+                vorfaktor = sigma[i-1]*alpha**2*phi/(np.power(alpha**2+sigma[i-1],1.5))
+                print vorfaktor,
                 m[i]+=dt*muterm*vorfaktor
                 sigma[i]+=dt*sigma[i-1]*sigterm*vorfaktor
     mse = np.average((m-s)**2)

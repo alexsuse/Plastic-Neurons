@@ -27,15 +27,17 @@ except:
 def run_filters(args):
 
     i,j,dtheta,alpha = args
+    print i,j
+
     dt = 0.001
     phi = 1.0
     zeta = 1.0
     eta = 1.0
     gamma = 1.0
-    timewindow = 20000
+    timewindow = 2000
     dm = 0.0
     tau = 1.0
-    nparticles = 1000
+    nparticles = 2000
 
     #env is the "environment", that is, the true process to which we don't have access
 
@@ -109,7 +111,7 @@ except:
         sparse_eps[i,j] = sparse_mse
         particle_eps[i,j] = msep
 
-    with open("dense_sparse.pik","wb") as f:
+    with open(filename,"wb") as f:
         pic.dump({'dense_eps':dense_eps,
                   'sparse_eps':sparse_eps,
                   'particle_eps':particle_eps,
