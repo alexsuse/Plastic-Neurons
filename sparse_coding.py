@@ -12,7 +12,7 @@ import sys
 
 plotting = True
 
-dthetas = np.arange(0.01,2.0,0.05)
+dthetas =np.arange(0.01,2.0,0.05)
 alphas = np.arange(0.01,2.0,0.05)
 
 sparse_eps = np.zeros((dthetas.size,alphas.size))
@@ -34,10 +34,10 @@ def run_filters(args):
     zeta = 1.0
     eta = 1.0
     gamma = 1.0
-    timewindow = 2000
+    timewindow = 20000
     dm = 0.0
     tau = 1.0
-    nparticles = 2000
+    nparticles = 1000
 
     #env is the "environment", that is, the true process to which we don't have access
 

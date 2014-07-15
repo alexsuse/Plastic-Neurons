@@ -3,6 +3,8 @@
 """
 import numpy as np
 
+np.seterr(over='raise')
+
 def choice(p,a=None,shape=(1,),randomstate=np.random):
     """chooses an element from a with probabilities p. Can return arbitrarily shaped-samples through the shape argument.
     p needs not be normalized, as this is checked for."""
@@ -47,15 +49,29 @@ def gaussian_filter(code,env,timewindow=20000,dt=0.001,mode='Silent', dense=Fals
             m[i] = m[i-1] + dt*env.meandrift(m[i-1],sigma[i-1])
             sigma[i] = sigma[i-1]+dt*env.vardrift(m[i-1],sigma[i-1])
             if not dense:
-                for n in code.neurons:
-                    km = n.getmu()
-                    cm = np.exp(-0.5*(m[i-1]-n.theta)**2/(alpha**2+sigma[i-1]))
-                    muterm = muterm + km*cm*(m[i-1]-n.theta)
-                    sigterm = sigterm + km*cm*(sigma[i-1]+(m[i-1]-n.theta)**2)
-                vorfaktor = sigma[i-1]*alpha**2*phi/(np.power(alpha**2+sigma[i-1],1.5))
-                print vorfaktor,
-                m[i]+=dt*muterm*vorfaktor
-                sigma[i]+=dt*sigma[i-1]*sigterm*vorfaktor
+                try:
+                    for n in code.neurons:
+                        km = n.getmu()
+                        cm = np.exp(-0.5*(m[i-1]-n.theta)**2/(alpha**2+sigma[i-1]))
+                        muterm = muterm + km*cm*(m[i-1]-n.theta)
+                        sigterm = sigterm + km*cm*(sigma[i-1]-(m[i-1]-n.theta)**2)
+                    vorfaktor = sigma[i-1]*alpha**2*phi/(np.power(alpha**2+sigma[i-1],1.5))
+                    m[i]+=dt*muterm*vorfaktor
+                    sigma[i]+=dt*sigma[i-1]*sigterm*vorfaktor
+                except:
+                    print 'vorfaktor', vorfaktor
+                    print 'sigterm', sigterm
+                    print 'alpha',alpha
+                    print 'sigma',sigma[i-40:i]
+                    print 'vardrift'
+                    for s in sigma[i-40:i]:
+                        print env.vardrift(m[i],s)
+                    print 'muterm',muterm
+                    print 'cm',cm
+                    print 'km',km
+                    print 'mu',m[i-1]
+                    print 'n.theta',n.theta
+                    exit()
     mse = np.average((m-s)**2)
     return [m,sigma,sps,s,mse]    
 
