@@ -124,12 +124,33 @@ if plotting:
     import prettyplotlib as ppl
     
     #matplotlib.rcParams['font.size']=10
-   
-    fig, (ax1,ax2,ax3) = ppl.subplots(1,3)
+  
+    xs,ys = np.where(np.isnan(sparse_eps))
+
+    for x,y in zip(xs,ys):
+        sparse_eps[x,y] = 0.5
+
+    max1 = np.max(sparse_eps)
+    max2 = np.max(dense_eps)
+    max3 = np.max(particle_eps)
+
+    maxtotal = np.max([max1,max2,max3])
+
+
+    min1 = np.min(sparse_eps)
+    min2 = np.min(dense_eps)
+    min3 = np.min(particle_eps)
+
+    mintotal = np.min([min1,min2,min3])
+
+
+    fig, (ax1,ax2,ax3) = ppl.subplots(3,1)
 
     p1 = ppl.pcolormesh(fig,ax1,dense_eps)
     p2 = ppl.pcolormesh(fig,ax2,sparse_eps)
     p3 = ppl.pcolormesh(fig,ax3,particle_eps)
+
+    [p.set_clim(vmin=mintotal,vmax=maxtotal) for p in [p1,p2,p3]]
 
 
     plt.show()
