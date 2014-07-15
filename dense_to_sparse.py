@@ -26,7 +26,7 @@ particle_eps = np.zeros((dthetas.size,))
 
 def run_filters(arg):
     i,dtheta = arg
-
+    print arg
     dt = 0.001
     phi = 1.0
     zeta = 1.0
