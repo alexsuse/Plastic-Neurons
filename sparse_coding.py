@@ -54,7 +54,6 @@ def run_filters(args):
                                  thetas=np.arange(-dtheta,1.1*dtheta,2*dtheta),
                                  dm=dm,randomstate=code_rng)
 
-    print code.neurons[0].theta
     
     env_rng.seed(12345)
     code_rng.seed(67890)
