@@ -18,7 +18,7 @@ import multiprocessing as mp
 #and particles give the position of the particles
 #weights gives the weights associated with each particle
 
-dthetas = np.arange(0.1,2.0,0.1)
+dthetas = np.arange(0.1,2.0,0.2)
 
 sparse_eps = np.zeros((dthetas.size,))
 dense_eps = np.zeros((dthetas.size,))
@@ -33,10 +33,10 @@ def run_filters(arg):
     eta = 1.0
     gamma = 1.0
     alpha = 0.5
-    timewindow = 500000
+    timewindow = 200000
     dm = 0.0
     tau = 1.0
-    nparticles = 1000
+    nparticles = 500
 
     env_rng = np.random.mtrand.RandomState()
 
@@ -100,7 +100,7 @@ except:
 
     for r in results:
         i,dense,sparse,part = r
-        dense_eps[i] = dens
+        dense_eps[i] = dense
         sparse_eps[i] = sparse
         particle_eps[i] = part
 
