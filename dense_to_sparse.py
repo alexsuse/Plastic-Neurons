@@ -33,7 +33,7 @@ def run_filters(arg):
     eta = 1.0
     gamma = 1.0
     alpha = 0.5
-    timewindow = 1000000
+    timewindow = 500000
     dm = 0.0
     tau = 1.0
     nparticles = 1000

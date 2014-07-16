@@ -12,8 +12,8 @@ import sys
 
 plotting = True
 
-dthetas =np.arange(0.01,2.0,0.05)
-alphas = np.arange(0.01,2.0,0.05)
+dthetas =np.arange(0.01,2.0,0.02)
+alphas = np.arange(0.01,2.2,0.02)
 
 sparse_eps = np.zeros((dthetas.size,alphas.size))
 dense_eps = np.zeros((dthetas.size,alphas.size))
@@ -34,7 +34,7 @@ def run_filters(args):
     zeta = 1.0
     eta = 1.0
     gamma = 1.0
-    timewindow = 20000
+    timewindow = 30000
     dm = 0.0
     tau = 1.0
     nparticles = 1000
